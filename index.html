@@ -6,25 +6,34 @@
     <title>VOID GAMING | شحن الألعاب</title>
     <meta name="description" content="VOID GAMING is a premium gaming top-up platform offering PUBG Mobile, Mobile Legends, Free Fire, Valorant, and more with fast service and competitive pricing worldwide." />
     <meta name="theme-color" content="#050505" />
+
+    <!-- ==================== وسوم المعاينة (Open Graph & Twitter Cards) ==================== -->
     <meta property="og:title" content="VOID GAMING | Premium Gaming Top-Ups" />
     <meta property="og:description" content="Premium gaming top-ups for PUBG, Mobile Legends, Free Fire, Valorant & more. Fast, secure, and globally trusted." />
-    <meta property="og:image" content="assets/IMG_3373.jpeg" />
-    <meta property="og:image:secure_url" content="assets/IMG_3373.jpeg" />
+    <meta property="og:image" content="IMG_3373.jpeg" />
+    <meta property="og:image:secure_url" content="IMG_3373.jpeg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <!-- ⚠️ غيّر الرابط أدناه إلى رابط موقعك الفعلي على GitHub Pages -->
+    <meta property="og:url" content="https://yourusername.github.io/repository-name/" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://yourdomain.com" />
+    <meta property="og:site_name" content="VOID GAMING" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="VOID GAMING | Premium Gaming Top-Ups" />
     <meta name="twitter:description" content="Premium gaming top-ups for PUBG, Mobile Legends, Free Fire, Valorant & more." />
-    <meta name="twitter:image" content="assets/IMG_3373.jpeg" />
+    <meta name="twitter:image" content="IMG_3373.jpeg" />
+
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-weight='900' style='fill:%239D4EDD;'>V</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        /* ===== RESET & VARIABLES ===== */
+        /* ============================================================
+                   جميع التنسيقات (نفس الكود السابق)
+                   ============================================================ */
         :root {
             --bg-primary: #050505;
             --bg-secondary: #0a0a0f;
@@ -795,7 +804,7 @@
             color: var(--text-muted);
         }
 
-        /* ===== PAYMENT INSTRUCTION - الرقم ظاهر وواضح جداً ===== */
+        /* PAYMENT INSTRUCTION */
         .payment-instruction {
             background: var(--payment-highlight);
             border: 2px solid var(--neon-blue);
@@ -836,7 +845,6 @@
             border-radius: 60px;
             background: rgba(0, 0, 0, 0.4);
             box-shadow: 0 0 30px var(--neon-blue-glow);
-            /* تأكيد إضافي: */
             color: var(--neon-blue) !important;
             -webkit-text-fill-color: var(--neon-blue) !important;
             background: rgba(0, 0, 0, 0.3);
@@ -861,7 +869,6 @@
             margin: 8px 0 4px;
         }
 
-        /* زر واتساب */
         .btn-whatsapp-submit {
             width: 100%;
             padding: 14px;
@@ -1309,8 +1316,6 @@
             <div class="testimonial-grid" id="testimonialGrid">
                 <!-- Rendered by JavaScript -->
             </div>
-
-            <!-- إضافة تقييم جديد -->
             <div class="add-review-box">
                 <h4>💬 أضف تقييمك</h4>
                 <form id="reviewForm">
@@ -1364,12 +1369,10 @@
                     </div>
                 </div>
                 <div class="contact-form" id="orderForm">
-                    <!-- ===== PAYMENT INSTRUCTION - الرقم ظاهر وواضح ===== -->
                     <div class="payment-instruction">
                         <h4>💳 طريقة الدفع (فودافون كاش)</h4>
                         <p class="step-hint">قم بتحويل المبلغ المطلوب إلى رقم المحفظة التالي:</p>
                         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
-                            <!-- الرقم مكتوب هنا بوضوح -->
                             <span class="wallet-number" id="walletNumber">0150033918</span>
                             <button class="copy-btn" id="copyWalletBtn" aria-label="نسخ الرقم">
                                 <i class="fas fa-copy"></i> نسخ
@@ -1405,8 +1408,6 @@
                             <label for="orderServer">معرف السيرفر <span style="color:var(--text-muted);font-weight:400;">(إذا لزم)</span></label>
                             <input type="text" id="orderServer" placeholder="أدخل معرف السيرفر" />
                         </div>
-
-                        <!-- زر واتساب -->
                         <button type="button" class="btn-whatsapp-submit" id="whatsappOrderBtn">
                             <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
                         </button>
@@ -1464,13 +1465,12 @@
 
     <script>
         // ================================================================
-        //  COMPLETE SCRIPT.JS — All functionality
+        //  COMPLETE SCRIPT.JS
         // ================================================================
 
         (function() {
             'use strict';
 
-            // CONTACTS
             const CONTACTS = {
                 whatsapp: 'https://wa.me/201500339318',
                 telegram: 'https://t.me/chilldiavolo',
@@ -1481,7 +1481,6 @@
             let currentLang = 'ar';
             let currentTheme = 'dark';
 
-            // I18N Dictionary (بسيطة)
             const I18N = {
                 en: {
                     'nav.home': 'Home',
@@ -1624,9 +1623,7 @@
             const reviewCountSpan = document.getElementById('reviewCount');
             const whatsappBtn = document.getElementById('whatsappOrderBtn');
 
-            // =============================================================
-            //  THREE.JS
-            // =============================================================
+            // THREE.JS
             function initThree() {
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(75, threeContainer.clientWidth / threeContainer.clientHeight, 0.1,
@@ -1640,7 +1637,6 @@
                 const positions = new Float32Array(count * 3);
                 const colors = new Float32Array(count * 3);
                 const sizes = new Float32Array(count);
-
                 const color1 = new THREE.Color('#00d4ff');
                 const color2 = new THREE.Color('#9d4edd');
 
@@ -1648,13 +1644,11 @@
                     positions[i * 3] = (Math.random() - 0.5) * 30;
                     positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
                     positions[i * 3 + 2] = (Math.random() - 0.5) * 30;
-
                     const mix = Math.random();
                     const c = color1.clone().lerp(color2, mix);
                     colors[i * 3] = c.r;
                     colors[i * 3 + 1] = c.g;
                     colors[i * 3 + 2] = c.b;
-
                     sizes[i] = 0.02 + Math.random() * 0.06;
                 }
 
@@ -1709,9 +1703,7 @@
 
             let threeInstance = null;
 
-            // =============================================================
-            //  GSAP
-            // =============================================================
+            // GSAP
             function initGSAP() {
                 gsap.registerPlugin(ScrollTrigger);
                 gsap.from('.hero-content h1', { opacity: 0, y: 50, duration: 1.2, delay: 0.3, ease: 'power4.out' });
@@ -1730,9 +1722,7 @@
                 });
             }
 
-            // =============================================================
-            //  THEME
-            // =============================================================
+            // THEME
             function setTheme(theme) {
                 currentTheme = theme;
                 document.documentElement.setAttribute('data-theme', theme);
@@ -1744,9 +1734,7 @@
                 setTheme(currentTheme === 'dark' ? 'light' : 'dark');
             }
 
-            // =============================================================
-            //  LANGUAGE
-            // =============================================================
+            // LANGUAGE
             function setLang(lang) {
                 currentLang = lang;
                 localStorage.setItem('void-lang', lang);
@@ -1782,9 +1770,7 @@
                 setLang(currentLang === 'en' ? 'ar' : 'en');
             }
 
-            // =============================================================
-            //  LOAD PRICES
-            // =============================================================
+            // LOAD PRICES
             async function loadPrices() {
                 try {
                     const res = await fetch('prices.json');
@@ -1830,9 +1816,7 @@
                 }
             }
 
-            // =============================================================
-            //  ORDER FORM HELPERS
-            // =============================================================
+            // ORDER FORM HELPERS
             function updatePackageOptions(gameId) {
                 const game = allGames.find(g => g.id === gameId);
                 orderPackage.innerHTML = '<option value="">-- اختر --</option>';
@@ -1859,9 +1843,7 @@
                 });
             }
 
-            // =============================================================
-            //  COPY WALLET
-            // =============================================================
+            // COPY WALLET
             function copyWalletNumber() {
                 const text = walletNumberSpan.textContent.trim();
                 if (navigator.clipboard) {
@@ -1887,9 +1869,7 @@
                 setTimeout(() => { copyWalletBtn.innerHTML = original; }, 2000);
             }
 
-            // =============================================================
-            //  WHATSAPP ORDER
-            // =============================================================
+            // WHATSAPP ORDER
             function sendOrderViaWhatsApp() {
                 const name = document.getElementById('orderName').value.trim();
                 const game = orderGame.value;
@@ -1921,9 +1901,7 @@
                 showOrderNotification(name, gameName);
             }
 
-            // =============================================================
-            //  NOTIFICATIONS
-            // =============================================================
+            // NOTIFICATIONS
             function showOrderNotification(user, game) {
                 notifUser.textContent = user;
                 notifGame.textContent = game;
@@ -1943,9 +1921,7 @@
                 }, 8000);
             }
 
-            // =============================================================
-            //  TESTIMONIALS
-            // =============================================================
+            // TESTIMONIALS
             let reviews = [];
 
             function loadInitialReviews() {
@@ -2005,9 +1981,7 @@
                 renderReviews();
             }
 
-            // =============================================================
-            //  FAQ
-            // =============================================================
+            // FAQ
             function renderFAQ() {
                 const faqs = [
                     { q: 'faq.q1', a: 'faq.a1' },
@@ -2036,9 +2010,7 @@
                 });
             }
 
-            // =============================================================
-            //  CONTACTS
-            // =============================================================
+            // CONTACTS
             function renderContacts() {
                 const methods = [
                     { icon: 'fab fa-whatsapp', label: 'WhatsApp', url: CONTACTS.whatsapp },
@@ -2069,9 +2041,7 @@
                 floatTelegram.href = CONTACTS.telegram;
             }
 
-            // =============================================================
-            //  COUNTERS
-            // =============================================================
+            // COUNTERS
             function animateCounters() {
                 document.querySelectorAll('.stat-item .number').forEach(counter => {
                     const target = parseInt(counter.dataset.count);
@@ -2087,9 +2057,7 @@
                 });
             }
 
-            // =============================================================
-            //  BACK TO TOP
-            // =============================================================
+            // BACK TO TOP
             function initBackToTop() {
                 backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
                 window.addEventListener('scroll', () => {
@@ -2100,9 +2068,7 @@
                 backToTop.style.pointerEvents = 'none';
             }
 
-            // =============================================================
-            //  HAMBURGER
-            // =============================================================
+            // HAMBURGER
             function initHamburger() {
                 hamburger.addEventListener('click', () => {
                     const open = navLinks.classList.toggle('open');
@@ -2116,9 +2082,7 @@
                 });
             }
 
-            // =============================================================
-            //  INIT
-            // =============================================================
+            // INIT
             async function init() {
                 await loadPrices();
 
