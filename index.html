@@ -26,8 +26,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <!-- ===== كل التنسيقات كما هي (لم تتغير) ===== -->
   <style>
-    /* ===== جميع التنسيقات كما هي (لم تتغير) ===== */
+    /* ===== الثيمات والمتغيرات ===== */
     :root {
       --bg-primary: #050505;
       --bg-secondary: #0a0a0f;
@@ -986,7 +988,7 @@
 
   <script>
     // ================================================================
-    //  VOID GAMING - باستخدام IndexedDB لتخزين الصور (حل مشكلة السعة)
+    //  VOID GAMING - باستخدام IndexedDB لتخزين الصور مع إصلاح حفظ الطلبات
     // ================================================================
 
     (function() {
@@ -1099,22 +1101,8 @@
         });
       }
 
-      function deleteImageFromDB(id) {
-        return new Promise((resolve, reject) => {
-          if (!db) {
-            reject(new Error('IndexedDB غير جاهز'));
-            return;
-          }
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          const request = store.delete(id);
-          request.onsuccess = () => resolve();
-          request.onerror = () => reject(request.error);
-        });
-      }
-
       // =============================================================
-      // 1. إدارة المستخدمين (Users) – كما هي
+      // 1. إدارة المستخدمين
       // =============================================================
       function getUsers() {
         const stored = localStorage.getItem('void_users');
@@ -1202,19 +1190,9 @@
         localStorage.setItem('void_orders', JSON.stringify(ordersData));
       }
 
-      async function createOrder(data) {
-        // حفظ الصورة في IndexedDB إذا وجدت
-        let imageId = null;
-        if (data.receiptImage) {
-          imageId = 'receipt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-          try {
-            await saveImageToDB(imageId, data.receiptImage);
-          } catch (err) {
-            console.error('فشل حفظ الصورة في IndexedDB:', err);
-            throw new Error('فشل حفظ الصورة: ' + err.message);
-          }
-        }
-
+      // دالة إنشاء الطلب الرئيسية – متزامنة مع تخزين الصورة في الخلفية
+      function createOrder(data) {
+        // إنشاء الطلب أولاً بدون الصورة (سنضيفها لاحقاً)
         const newOrder = {
           id: 'ord_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
           userName: data.name || 'غير معروف',
@@ -1224,13 +1202,36 @@
           gameId: data.gameId || '',
           server: data.server || '',
           senderPhone: data.senderPhone || '',
-          receiptImageId: imageId, // المرجع فقط
+          receiptImageId: null, // سيتم تحديثه بعد حفظ الصورة
           status: 'pending_payment',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
+
+        // حفظ الطلب في localStorage فوراً
         orders.unshift(newOrder);
         saveOrders(orders);
+
+        // معالجة الصورة في الخلفية (غير متزامن)
+        if (data.receiptImage) {
+          const imageId = 'receipt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+          saveImageToDB(imageId, data.receiptImage)
+            .then(() => {
+              // تحديث الطلب بالمرجع الجديد
+              const orderToUpdate = orders.find(o => o.id === newOrder.id);
+              if (orderToUpdate) {
+                orderToUpdate.receiptImageId = imageId;
+                saveOrders(orders);
+                renderAdminOrders(); // تحديث لوحة الأدمن
+                renderMyOrders(); // تحديث طلبات العميل
+              }
+            })
+            .catch(err => {
+              console.error('فشل حفظ الصورة في IndexedDB:', err);
+              // لا نمنع إكمال العملية، الصورة ستكون مفقودة فقط
+            });
+        }
+
         // إشعار للأدمن
         addNotification(ADMIN_USERNAME, '📩 طلب جديد من ' + newOrder.userName + ' (لعبة: ' + newOrder.game + ')');
         if (currentUser && currentUser.isAdmin) {
@@ -1264,7 +1265,7 @@
       }
 
       // =============================================================
-      // 3. نظام الإشعارات (Notifications)
+      // 3. نظام الإشعارات
       // =============================================================
       function getNotifications() {
         const stored = localStorage.getItem('void_notifications');
@@ -1423,7 +1424,7 @@
         const faqs = [
           { q: 'ما سرعة التوصيل؟', a: 'يتم تسليم معظم الشحنات خلال 5-15 دقيقة بعد تأكيد الدفع.' },
           { q: 'هل مدفوعاتي آمنة؟', a: 'نعم، نستخدم نظام تحقق يدوي آمن ولا نخزن أي بيانات دفع.' },
-          { q: 'ما الألعاب التي تدعمونها？', a: 'ندعم ببجي موبايل، موبايل ليجندز، فري فاير، كول أوف ديوتي موبايل، هونر أوف كينجز، جينشين إمباكت، فالورانت، وليج أوف ليجندز.' },
+          { q: 'ما الألعاب التي تدعمونها؟', a: 'ندعم ببجي موبايل، موبايل ليجندز، فري فاير، كول أوف ديوتي موبايل، هونر أوف كينجز، جينشين إمباكت، فالورانت، وليج أوف ليجندز.' },
           { q: 'كيف أتواصل مع الدعم؟', a: 'يمكنك التواصل معنا عبر واتساب، تيليجرام، أو إنستجرام.' }
         ];
         faqList.innerHTML = '';
@@ -1533,7 +1534,7 @@
           });
         });
 
-        // مستمعات أزرار عرض الإيصال (تقرأ من IndexedDB)
+        // مستمعات أزرار عرض الإيصال
         adminOrdersBody.querySelectorAll('.admin-btn-receipt').forEach(btn => {
           btn.addEventListener('click', async function() {
             const imageId = this.dataset.imageId;
@@ -1636,7 +1637,7 @@
       }
 
       // =============================================================
-      // 7. ضغط الصورة (تحسين)
+      // 7. ضغط الصورة
       // =============================================================
       function compressImage(file, maxWidth = 600, maxHeight = 600, quality = 0.6) {
         return new Promise((resolve, reject) => {
@@ -1667,7 +1668,7 @@
       }
 
       // =============================================================
-      // 8. إرسال الطلب – مع IndexedDB
+      // 8. إرسال الطلب – مع تخزين فوري في localStorage
       // =============================================================
       async function submitOrder() {
         if (!currentUser) {
@@ -1706,8 +1707,8 @@
             return;
           }
 
-          // إنشاء الطلب (سيتم حفظ الصورة في IndexedDB داخل createOrder)
-          await createOrder({
+          // إنشاء الطلب (يتم حفظه فوراً في localStorage، ثم الصورة في الخلفية)
+          createOrder({
             name: name,
             game: gameName,
             pkg: pkgLabel,
@@ -1923,7 +1924,7 @@
       // 13. التهيئة (INIT)
       // =============================================================
       async function init() {
-        // فتح IndexedDB أولاً
+        // فتح IndexedDB
         try {
           await openDB();
         } catch (err) {
