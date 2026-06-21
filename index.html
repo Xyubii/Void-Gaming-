@@ -109,7 +109,7 @@
     @keyframes loadBar { 0% { width:0%; } 100% { width:100%; } }
     @keyframes pulseGlow { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.02); } }
 
-    /* ===== AUTH MODAL (تسجيل الدخول / إنشاء حساب) ===== */
+    /* ===== AUTH MODAL ===== */
     .auth-overlay {
       position: fixed;
       inset: 0;
@@ -427,7 +427,6 @@
     .payment-instruction .copy-btn:hover { border-color: var(--neon-blue); color: var(--text-primary); }
     .payment-instruction .step-hint { font-size: 0.8rem; color: var(--text-secondary); margin: 8px 0 4px; }
 
-    /* أزرار الإرسال */
     .btn-submit-order {
       width: 100%; padding: 14px; border-radius: 60px; font-weight: 700; font-size: 1rem;
       background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); color: #fff;
@@ -435,15 +434,6 @@
       border: none; margin-top: 6px;
     }
     .btn-submit-order:hover { transform: scale(1.02); box-shadow: 0 0 50px var(--neon-purple-glow); }
-    
-    .btn-whatsapp-submit {
-      width: 100%; padding: 14px; border-radius: 60px; font-weight: 700; font-size: 1rem;
-      background: #25d366; color: #fff; transition: var(--transition-smooth);
-      box-shadow: 0 0 30px rgba(37,211,102,0.3); border: none; margin-top: 6px;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
-    .btn-whatsapp-submit:hover { transform: scale(1.02); box-shadow: 0 0 50px rgba(37,211,102,0.5); background: #20b85a; }
-    .btn-whatsapp-submit i { font-size: 1.2rem; }
 
     .order-success-msg {
       display: none;
@@ -679,7 +669,7 @@
     <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
   </div>
 
-  <!-- ===== AUTH MODAL (تسجيل الدخول / إنشاء حساب) ===== -->
+  <!-- ===== AUTH MODAL ===== -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
       <h2>VOID GAMING</h2>
@@ -703,7 +693,7 @@
         <button type="submit">إنشاء حساب</button>
       </form>
 
-      <div class="auth-note">🔒 بياناتك تُخزن محلياً في متصفحك. حساب الأدمن: lord / cas1311$</div>
+      <div class="auth-note">🔒 بياناتك تُخزن محلياً في متصفحك.</div>
     </div>
   </div>
 
@@ -821,7 +811,7 @@
     </div>
   </section>
 
-  <!-- ===== CONTACT & PAYMENT (تم حذف قسم الألعاب تماماً) ===== -->
+  <!-- ===== CONTACT & PAYMENT ===== -->
   <section id="contact" aria-label="Contact">
     <div class="container">
       <h2 class="section-title">تواصل <span class="highlight">معنا</span></h2>
@@ -851,13 +841,8 @@
             <div class="form-group"><label for="orderSenderPhone">📱 رقم الهاتف المحوّل منه</label><input type="tel" id="orderSenderPhone" placeholder="مثال: 01234567890" required /></div>
             <div class="form-group"><label for="orderScreenshot">🖼️ صورة إيصال التحويل</label><input type="file" id="orderScreenshot" accept="image/*" required style="padding:6px 10px;" /></div>
             
-            <!-- زر الإرسال الرئيسي (يحفظ في قاعدة البيانات المحلية) -->
             <button type="button" class="btn-submit-order" id="mainSubmitBtn"><i class="fas fa-save"></i> إرسال الطلب</button>
             
-            <!-- زر واتساب (اختياري) -->
-            <button type="button" class="btn-whatsapp-submit" id="whatsappOrderBtn"><i class="fab fa-whatsapp"></i> تواصل عبر واتساب (اختياري)</button>
-            
-            <!-- رسالة نجاح -->
             <div class="order-success-msg" id="orderSuccessMsg">
               ✅ تم استلام طلبك بنجاح! جاري المراجعة من قبل الإدارة.
             </div>
@@ -882,6 +867,9 @@
               <th>اللعبة</th>
               <th>الباقة</th>
               <th>السعر</th>
+              <th>معرف اللعبة</th>
+              <th>السيرفر</th>
+              <th>رقم الهاتف</th>
               <th>الحالة</th>
               <th>الإيصال</th>
               <th>الإجراءات</th>
@@ -895,7 +883,7 @@
     </div>
   </section>
 
-  <!-- ===== RECEIPT MODAL (عرض الصورة) ===== -->
+  <!-- ===== RECEIPT MODAL ===== -->
   <div class="receipt-modal" id="receiptModal">
     <div class="modal-content">
       <button class="close-modal" id="closeReceiptModal">&times;</button>
@@ -932,7 +920,7 @@
 
   <script>
     // ================================================================
-    //  نظام VOID GAMING المتكامل (تسجيل محلي + طلبات + أدمن)
+    //  نظام VOID GAMING المتكامل (تسجيل محلي + طلبات + أدمن + إشعارات)
     // ================================================================
 
     (function() {
@@ -964,7 +952,6 @@
       const authTabs = document.querySelectorAll('.auth-tab');
       const logoutBtn = document.getElementById('logoutBtn');
 
-      const gamesGrid = document.getElementById('gamesGrid'); // غير مستخدم لكن نحتفظ به لتجنب الأخطاء
       const faqList = document.getElementById('faqList');
       const testimonialGrid = document.getElementById('testimonialGrid');
       const contactMethods = document.getElementById('contactMethods');
@@ -974,7 +961,6 @@
       const copyWalletBtn = document.getElementById('copyWalletBtn');
       const walletNumberSpan = document.getElementById('walletNumber');
       const mainSubmitBtn = document.getElementById('mainSubmitBtn');
-      const whatsappBtn = document.getElementById('whatsappOrderBtn');
       const orderSuccessMsg = document.getElementById('orderSuccessMsg');
       const reviewForm = document.getElementById('reviewForm');
       const reviewCountSpan = document.getElementById('reviewCount');
@@ -998,7 +984,6 @@
         if (stored) {
           try { return JSON.parse(stored); } catch (e) { return []; }
         }
-        // تهيئة بحساب الأدمن الافتراضي
         const defaultUsers = [
           { username: ADMIN_USERNAME, password: ADMIN_PASSWORD, isAdmin: true }
         ];
@@ -1023,7 +1008,6 @@
           alert('كلمة المرور يجب أن تكون 4 أحرف على الأقل.');
           return false;
         }
-        // منع استخدام اسم الأدمن المحجوز
         if (username === ADMIN_USERNAME) {
           alert('هذا الاسم محجوز للإدارة.');
           return false;
@@ -1040,9 +1024,7 @@
       }
 
       function login(username, password) {
-        // تحقق من الأدمن الثابت أولاً
         if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-          // تأكد من وجوده في القاعدة
           let users = getUsers();
           let admin = users.find(u => u.username === ADMIN_USERNAME);
           if (!admin) {
@@ -1120,9 +1102,8 @@
         };
         orders.unshift(newOrder);
         saveOrders(orders);
-        // إشعار فوري للأدمن
+        // إشعار للأدمن
         showNotification('📩 طلب جديد من ' + newOrder.userName);
-        // تحديث لوحة الأدمن
         renderAdminOrders();
         return newOrder;
       }
@@ -1134,7 +1115,10 @@
           order.updatedAt = new Date().toISOString();
           saveOrders(orders);
           renderAdminOrders();
+          // إشعار للعميل إذا تم التسليم
           if (newStatus === 'delivered') {
+            // تخزين إشعار للمستخدم (نظام الإشعارات)
+            addNotification(order.userName, '✅ تم تسليم طلبك "' + order.game + '"! شكراً لاستخدامك VOID GAMING.');
             showNotification('✅ تم تسليم طلب ' + order.userName + '!');
           }
           return true;
@@ -1143,7 +1127,54 @@
       }
 
       // =============================================================
-      // 3. إدارة الألعاب (للقوائم المنسدلة فقط)
+      // 3. نظام الإشعارات (Notifications)
+      // =============================================================
+      function getNotifications() {
+        const stored = localStorage.getItem('void_notifications');
+        if (stored) {
+          try { return JSON.parse(stored); } catch (e) { return []; }
+        }
+        return [];
+      }
+
+      function saveNotifications(notifs) {
+        localStorage.setItem('void_notifications', JSON.stringify(notifs));
+      }
+
+      function addNotification(userName, message) {
+        const notifs = getNotifications();
+        notifs.push({
+          userName: userName,
+          message: message,
+          read: false,
+          timestamp: new Date().toISOString()
+        });
+        saveNotifications(notifs);
+        // إذا كان المستخدم الحالي هو صاحب الإشعار، أظهره فوراً
+        if (currentUser && currentUser.username === userName) {
+          showNotification(message);
+        }
+      }
+
+      function getUserNotifications(username) {
+        const notifs = getNotifications();
+        return notifs.filter(n => n.userName === username && !n.read);
+      }
+
+      function markNotificationsAsRead(username) {
+        const notifs = getNotifications();
+        let updated = false;
+        notifs.forEach(n => {
+          if (n.userName === username && !n.read) {
+            n.read = true;
+            updated = true;
+          }
+        });
+        if (updated) saveNotifications(notifs);
+      }
+
+      // =============================================================
+      // 4. إدارة الألعاب (للقوائم المنسدلة فقط)
       // =============================================================
       function loadGames() {
         const stored = localStorage.getItem('void_games');
@@ -1180,7 +1211,7 @@
       }
 
       // =============================================================
-      // 4. إدارة التقييمات (Reviews)
+      // 5. إدارة التقييمات (Reviews)
       // =============================================================
       function getReviews() {
         const stored = localStorage.getItem('void_reviews');
@@ -1220,10 +1251,9 @@
       }
 
       // =============================================================
-      // 5. دوال العرض (Rendering)
+      // 6. دوال العرض (Rendering)
       // =============================================================
 
-      // 5.1 تحديث واجهة المستخدم (إظهار/إخفاء الأزرار والأدمن)
       function updateUI() {
         if (currentUser) {
           authOverlay.classList.add('hidden');
@@ -1236,6 +1266,12 @@
           } else {
             adminPanel.style.display = 'none';
           }
+          // عرض أي إشعارات غير مقروءة للمستخدم
+          const notifs = getUserNotifications(currentUser.username);
+          notifs.forEach(n => {
+            showNotification(n.message);
+          });
+          markNotificationsAsRead(currentUser.username);
         } else {
           authOverlay.classList.remove('hidden');
           logoutBtn.style.display = 'none';
@@ -1243,7 +1279,6 @@
         }
       }
 
-      // 5.2 عرض التقييمات
       function renderReviews() {
         testimonialGrid.innerHTML = '';
         const displayed = reviews.slice(0, 8);
@@ -1261,7 +1296,6 @@
         reviewCountSpan.textContent = reviews.length + '+';
       }
 
-      // 5.3 عرض الأسئلة الشائعة
       function renderFAQ() {
         const faqs = [
           { q: 'ما سرعة التوصيل؟', a: 'يتم تسليم معظم الشحنات خلال 5-15 دقيقة بعد تأكيد الدفع.' },
@@ -1290,7 +1324,6 @@
         });
       }
 
-      // 5.4 عرض جهات الاتصال
       function renderContacts() {
         const methods = [
           { icon: 'fab fa-whatsapp', label: 'WhatsApp', url: CONTACTS.whatsapp },
@@ -1321,13 +1354,12 @@
         floatTelegram.href = CONTACTS.telegram;
       }
 
-      // 5.5 عرض لوحة الأدمن (مع زر عرض الإيصال)
       function renderAdminOrders() {
         if (!adminOrdersBody) return;
         const filtered = currentUser && currentUser.isAdmin ? orders : [];
         if (filtered.length === 0) {
           adminOrdersBody.innerHTML =
-            `<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-muted);">لا توجد طلبات حالياً</td></tr>`;
+            `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">لا توجد طلبات حالياً</td></tr>`;
           return;
         }
         let html = '';
@@ -1345,9 +1377,12 @@
             <td>${order.game}</td>
             <td>${order.package}</td>
             <td>$${order.price}</td>
+            <td>${order.gameId}</td>
+            <td>${order.server || '-'}</td>
+            <td>${order.senderPhone}</td>
             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             <td>
-              ${hasReceipt ? `<button class="admin-btn admin-btn-receipt" data-receipt="${order.receiptImage}">عرض الإيصال</button>` : 'لا يوجد'}
+              ${hasReceipt ? `<button class="admin-btn admin-btn-receipt" data-receipt="${order.receiptImage}">عرض</button>` : 'لا يوجد'}
             </td>
             <td>
               ${order.status === 'pending_payment' ? `<button class="admin-btn admin-btn-confirm" data-id="${order.id}" data-action="confirm">تأكيد الدفع</button>` : ''}
@@ -1358,7 +1393,6 @@
         });
         adminOrdersBody.innerHTML = html;
 
-        // مستمعات أزرار الإجراءات
         adminOrdersBody.querySelectorAll('[data-action]').forEach(btn => {
           btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -1377,7 +1411,6 @@
           });
         });
 
-        // مستمعات أزرار عرض الإيصال
         adminOrdersBody.querySelectorAll('.admin-btn-receipt').forEach(btn => {
           btn.addEventListener('click', function() {
             const receiptData = this.dataset.receipt;
@@ -1389,7 +1422,6 @@
         });
       }
 
-      // 5.6 عرض قائمة الألعاب في القوائم المنسدلة
       function populateGameDropdowns() {
         orderGame.innerHTML = '<option value="">-- اختر --</option>';
         allGames.forEach(g => {
@@ -1416,14 +1448,12 @@
         }
       }
 
-      // 5.7 الإشعارات (Toast)
       function showNotification(message) {
         notifMessage.textContent = message;
         notifToast.classList.remove('hide');
         setTimeout(() => { notifToast.classList.add('hide'); }, 5000);
       }
 
-      // 5.8 الإحصائيات
       function animateCounters() {
         document.querySelectorAll('.stat-item .number').forEach(counter => {
           const target = parseInt(counter.dataset.count);
@@ -1440,7 +1470,7 @@
       }
 
       // =============================================================
-      // 6. إرسال الطلب (المنطق الأساسي)
+      // 7. إرسال الطلب (المنطق الأساسي)
       // =============================================================
       function submitOrder() {
         if (!currentUser) {
@@ -1481,20 +1511,16 @@
             receiptImage: imageData
           });
 
-          // إظهار رسالة النجاح
           orderSuccessMsg.classList.add('show');
-          // إخفاؤها بعد 8 ثواني
           setTimeout(() => {
             orderSuccessMsg.classList.remove('show');
           }, 8000);
 
-          // إعادة تعيين النموذج
           document.getElementById('orderFormElement').reset();
           orderPackage.innerHTML = '<option value="">-- اختر --</option>';
           orderGame.value = '';
           showNotification('✅ تم إرسال طلبك بنجاح!');
 
-          // تحديث لوحة الأدمن فوراً
           if (currentUser && currentUser.isAdmin) {
             renderAdminOrders();
           }
@@ -1503,7 +1529,7 @@
       }
 
       // =============================================================
-      // 7. THREE.JS الخلفية ثلاثية الأبعاد
+      // 8. THREE.JS الخلفية ثلاثية الأبعاد
       // =============================================================
       function initThree() {
         const scene = new THREE.Scene();
@@ -1583,7 +1609,7 @@
       let threeInstance = null;
 
       // =============================================================
-      // 8. GSAP
+      // 9. GSAP
       // =============================================================
       function initGSAP() {
         gsap.registerPlugin(ScrollTrigger);
@@ -1604,7 +1630,7 @@
       }
 
       // =============================================================
-      // 9. الثيم واللغة
+      // 10. الثيم واللغة
       // =============================================================
       function setTheme(theme) {
         currentTheme = theme;
@@ -1634,7 +1660,7 @@
       }
 
       // =============================================================
-      // 10. أدوات مساعدة (نسخ، العودة للأعلى، القائمة)
+      // 11. أدوات مساعدة (نسخ، العودة للأعلى، القائمة)
       // =============================================================
       function copyWalletNumber() {
         const text = walletNumberSpan.textContent.trim();
@@ -1685,73 +1711,27 @@
       }
 
       // =============================================================
-      // 11. التهيئة (INIT)
+      // 12. التهيئة (INIT)
       // =============================================================
       function init() {
-        // تحميل البيانات
         loadGames();
         orders = getOrders();
         reviews = getReviews();
 
-        // Three.js
         threeInstance = initThree();
 
-        // عرض المكونات
         populateGameDropdowns();
         renderReviews();
         renderFAQ();
         renderContacts();
         animateCounters();
 
-        // الأزرار
         initBackToTop();
         initHamburger();
 
-        // نسخ رقم المحفظة
         copyWalletBtn.addEventListener('click', copyWalletNumber);
-
-        // إرسال الطلب الرئيسي
         mainSubmitBtn.addEventListener('click', submitOrder);
 
-        // واتساب (اختياري)
-        whatsappBtn.addEventListener('click', function() {
-          // جمع البيانات لإرسالها عبر واتساب مع الصورة
-          const name = document.getElementById('orderName').value.trim();
-          const game = orderGame.value;
-          const pkgIdx = orderPackage.value;
-          const gameId = document.getElementById('orderId').value.trim();
-          const server = document.getElementById('orderServer').value.trim();
-          const senderPhone = document.getElementById('orderSenderPhone').value.trim();
-          const fileInput = document.getElementById('orderScreenshot');
-          const file = fileInput.files[0];
-
-          if (!name || !game || pkgIdx === '' || !gameId || !senderPhone || !file) {
-            alert('يرجى ملء جميع الحقول المطلوبة.');
-            return;
-          }
-          const gameData = allGames.find(g => g.id === game);
-          const gameName = gameData ? gameData.name : 'غير معروف';
-          const pkg = gameData ? gameData.packages[parseInt(pkgIdx)] : null;
-          const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
-
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const imageData = e.target.result;
-            const message =
-              `مرحباً، أريد شحن لعبة *${gameName}*%0A` +
-              `الباقة: *${pkgLabel}*%0A` +
-              `معرف اللعبة: *${gameId}*%0A` +
-              `${server ? 'معرف السيرفر: *' + server + '*%0A' : ''}` +
-              `الاسم: *${name}*%0A` +
-              `رقم المحوّل منه: *${senderPhone}*%0A%0A` +
-              `📸 صورة الإيصال مرفقة في الصورة التالية.`;
-            const waUrl = CONTACTS.whatsapp + '?text=' + message;
-            window.open(waUrl, '_blank');
-          };
-          reader.readAsDataURL(file);
-        });
-
-        // إضافة تقييم
         reviewForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const name = document.getElementById('reviewName').value.trim();
@@ -1766,8 +1746,7 @@
           }
         });
 
-        // إدارة المصادقة
-        // التبويبات
+        // Auth tabs
         authTabs.forEach(tab => {
           tab.addEventListener('click', function() {
             authTabs.forEach(t => t.classList.remove('active'));
@@ -1778,7 +1757,6 @@
           });
         });
 
-        // تسجيل الدخول
         loginForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const username = document.getElementById('loginUsername').value.trim();
@@ -1789,14 +1767,12 @@
           }
         });
 
-        // إنشاء حساب
         signupForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const username = document.getElementById('signupUsername').value.trim();
           const password = document.getElementById('signupPassword').value.trim();
           const confirm = document.getElementById('signupConfirm').value.trim();
           if (signup(username, password, confirm)) {
-            // تبديل إلى تبويب تسجيل الدخول تلقائياً
             authTabs.forEach(t => t.classList.remove('active'));
             document.querySelector('[data-tab="login"]').classList.add('active');
             document.getElementById('loginForm').classList.add('active');
@@ -1804,10 +1780,8 @@
           }
         });
 
-        // تسجيل الخروج
         logoutBtn.addEventListener('click', logout);
 
-        // الثيم واللغة
         const savedTheme = localStorage.getItem('void-theme') || 'dark';
         setTheme(savedTheme);
         themeToggle.addEventListener('click', toggleTheme);
@@ -1816,18 +1790,14 @@
         setLang(savedLang);
         langToggle.addEventListener('click', toggleLang);
 
-        // GSAP
         initGSAP();
 
-        // استعادة الجلسة
         const session = loadSession();
         if (session) {
-          // تحقق من صحة الجلسة (خاصة الأدمن)
           if (session.username === ADMIN_USERNAME) {
             session.isAdmin = true;
           }
           currentUser = session;
-          // تأكد من أن الأدمن موجود في قاعدة البيانات
           if (currentUser.isAdmin) {
             let users = getUsers();
             let admin = users.find(u => u.username === ADMIN_USERNAME);
@@ -1844,10 +1814,8 @@
           authOverlay.classList.remove('hidden');
         }
 
-        // إخفاء اللودر
         setTimeout(() => { loader.classList.add('hidden'); }, 2200);
 
-        // إعادة تحجيم ثلاثي الأبعاد
         window.addEventListener('resize', () => {
           if (threeInstance) {
             const w = threeContainer.clientWidth;
@@ -1858,7 +1826,6 @@
           }
         });
 
-        // إغلاق مودال الإيصال
         closeReceiptModal.addEventListener('click', () => {
           receiptModal.classList.remove('show');
         });
@@ -1871,7 +1838,6 @@
         console.log('📦 Orders:', orders);
       }
 
-      // تشغيل التطبيق
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
