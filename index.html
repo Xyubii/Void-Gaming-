@@ -897,6 +897,8 @@
             <div class="order-success-msg" id="orderSuccessMsg">
               ✅ تم استلام طلبك بنجاح! جاري المراجعة من قبل الإدارة.
             </div>
+            <!-- رسالة خطأ مخصصة -->
+            <div id="orderErrorMsg" style="display:none;padding:12px;border-radius:var(--radius-sm);background:rgba(255,0,0,0.08);border:1px solid #ff4444;color:#ff4444;text-align:center;margin-top:10px;font-weight:600;"></div>
           </form>
         </div>
       </div>
@@ -985,7 +987,7 @@
 
   <script>
     // ================================================================
-    //  نظام VOID GAMING المتكامل - مع إصلاح مشكلة الإرسال وطلبات العميل
+    //  نظام VOID GAMING المتكامل - مع ضغط الصور وإصلاح خطأ الإرسال
     // ================================================================
 
     (function() {
@@ -1028,6 +1030,7 @@
       const walletNumberSpan = document.getElementById('walletNumber');
       const mainSubmitBtn = document.getElementById('mainSubmitBtn');
       const orderSuccessMsg = document.getElementById('orderSuccessMsg');
+      const orderErrorMsg = document.getElementById('orderErrorMsg');
       const reviewForm = document.getElementById('reviewForm');
       const reviewCountSpan = document.getElementById('reviewCount');
       const adminOrdersBody = document.getElementById('adminOrdersBody');
@@ -1578,7 +1581,49 @@
       }
 
       // =============================================================
-      // 7. إرسال الطلب - إصلاح المشكلة
+      // 7. ضغط الصورة (Image Compression)
+      // =============================================================
+      function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+              // حساب الأبعاد الجديدة مع الحفاظ على النسبة
+              let width = img.width;
+              let height = img.height;
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+              }
+              if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+              }
+              // رسم الصورة على Canvas بحجم جديد
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              // تحويل إلى Base64 بصيغة JPEG بجودة محددة
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              resolve(dataUrl);
+            };
+            img.onerror = function() {
+              reject(new Error('فشل تحميل الصورة'));
+            };
+            img.src = e.target.result;
+          };
+          reader.onerror = function() {
+            reject(new Error('فشل قراءة الملف'));
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // =============================================================
+      // 8. إرسال الطلب - مع ضغط الصورة
       // =============================================================
       function submitOrder() {
         // التحقق من تسجيل الدخول
@@ -1603,19 +1648,47 @@
           return;
         }
 
+        // التحقق من حجم الملف (إذا كان أكبر من 2 ميجابايت، نضغطه)
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+        const processImage = file.size > MAX_FILE_SIZE ? compressImage(file, 600, 600, 0.6) : Promise.resolve(null);
+
         // الحصول على بيانات اللعبة والباقة
         const gameData = allGames.find(g => g.id === game);
         const gameName = gameData ? gameData.name : 'غير معروف';
         const pkg = gameData ? gameData.packages[parseInt(pkgIdx)] : null;
         const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
 
-        // قراءة الصورة باستخدام FileReader
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            const imageData = e.target.result; // Base64 string
+        // معالجة الصورة
+        processImage.then((compressedDataUrl) => {
+          // إذا تم الضغط، استخدم البيانات المضغوطة، وإلا استخدم الملف مباشرة
+          const finalImageData = compressedDataUrl || null;
 
-            // إنشاء الطلب
+          // قراءة الملف إذا لم يتم ضغطه
+          if (!compressedDataUrl) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              try {
+                const imageData = e.target.result;
+                createOrderAndShowSuccess(imageData);
+              } catch (err) {
+                showError('حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.');
+              }
+            };
+            reader.onerror = function() {
+              showError('حدث خطأ أثناء قراءة الصورة. تأكد من اختيار ملف صحيح.');
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // استخدام الصورة المضغوطة مباشرة
+            createOrderAndShowSuccess(finalImageData);
+          }
+        }).catch((err) => {
+          showError('حدث خطأ أثناء ضغط الصورة: ' + err.message);
+        });
+
+        // دالة مساعدة لإنشاء الطلب وعرض النجاح
+        function createOrderAndShowSuccess(imageData) {
+          try {
             const newOrder = createOrder({
               name: name,
               game: gameName,
@@ -1627,41 +1700,38 @@
               receiptImage: imageData
             });
 
-            // إظهار رسالة النجاح
             orderSuccessMsg.classList.add('show');
+            orderErrorMsg.style.display = 'none';
             setTimeout(() => {
               orderSuccessMsg.classList.remove('show');
             }, 8000);
 
-            // إعادة تعيين النموذج
             document.getElementById('orderFormElement').reset();
             orderPackage.innerHTML = '<option value="">-- اختر --</option>';
             orderGame.value = '';
 
-            // إشعار للمستخدم
             showNotification('✅ تم إرسال طلبك بنجاح!');
-
-            // تحديث واجهة العميل والأدمن
             renderMyOrders();
             if (currentUser && currentUser.isAdmin) {
               renderAdminOrders();
             }
           } catch (err) {
-            console.error('خطأ في معالجة الطلب:', err);
-            alert('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.');
+            showError('حدث خطأ أثناء حفظ الطلب: ' + err.message);
           }
-        };
+        }
 
-        reader.onerror = function() {
-          alert('حدث خطأ أثناء قراءة الصورة. تأكد من اختيار ملف صحيح.');
-        };
-
-        // بدء قراءة الملف
-        reader.readAsDataURL(file);
+        // دالة عرض الخطأ
+        function showError(msg) {
+          orderErrorMsg.textContent = msg;
+          orderErrorMsg.style.display = 'block';
+          setTimeout(() => {
+            orderErrorMsg.style.display = 'none';
+          }, 8000);
+        }
       }
 
       // =============================================================
-      // 8. THREE.JS الخلفية ثلاثية الأبعاد
+      // 9. THREE.JS الخلفية ثلاثية الأبعاد
       // =============================================================
       function initThree() {
         const scene = new THREE.Scene();
@@ -1741,7 +1811,7 @@
       let threeInstance = null;
 
       // =============================================================
-      // 9. GSAP
+      // 10. GSAP
       // =============================================================
       function initGSAP() {
         gsap.registerPlugin(ScrollTrigger);
@@ -1762,7 +1832,7 @@
       }
 
       // =============================================================
-      // 10. الثيم واللغة
+      // 11. الثيم واللغة
       // =============================================================
       function setTheme(theme) {
         currentTheme = theme;
@@ -1792,7 +1862,7 @@
       }
 
       // =============================================================
-      // 11. أدوات مساعدة
+      // 12. أدوات مساعدة
       // =============================================================
       function copyWalletNumber() {
         const text = walletNumberSpan.textContent.trim();
@@ -1843,7 +1913,7 @@
       }
 
       // =============================================================
-      // 12. التهيئة (INIT)
+      // 13. التهيئة (INIT)
       // =============================================================
       function init() {
         loadGames();
