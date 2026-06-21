@@ -27,9 +27,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
-    /* ============================================================
-               CSS VARIABLES & THEME SYSTEM
-               ============================================================ */
+    /* ===== نفس التنسيقات السابقة مع إضافة تنسيق نافذة الدخول ===== */
     :root {
       --bg-primary: #050505;
       --bg-secondary: #0a0a0f;
@@ -74,15 +72,8 @@
     }
     *,
     *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html {
-      scroll-behavior: smooth;
-      -webkit-font-smoothing: antialiased;
-    }
+    *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
     body {
       font-family: var(--font-body);
       background: var(--bg-primary);
@@ -118,7 +109,120 @@
     @keyframes loadBar { 0% { width:0%; } 100% { width:100%; } }
     @keyframes pulseGlow { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.02); } }
 
-    /* ===== HEADER ===== */
+    /* ===== AUTH MODAL (نافذة تسجيل الدخول المخصصة) ===== */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .auth-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 92%;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+    .auth-card h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-card .sub {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .auth-card .form-group {
+      margin-bottom: 14px;
+      text-align: right;
+    }
+    .auth-card .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .auth-card .form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-glass);
+      background: var(--bg-glass);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      transition: var(--transition-smooth);
+      backdrop-filter: blur(4px);
+    }
+    .auth-card .form-group input:focus {
+      outline: none;
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 20px var(--neon-blue-glow);
+    }
+    .auth-card .quick-accounts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 12px 0 16px;
+    }
+    .auth-card .quick-accounts button {
+      padding: 6px 14px;
+      border-radius: 60px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      transition: var(--transition-smooth);
+    }
+    .auth-card .quick-accounts button:hover {
+      border-color: var(--neon-blue);
+      color: var(--text-primary);
+      background: var(--neon-blue-glow);
+    }
+    .auth-card .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #fff;
+      color: #1a1a2e;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      width: 100%;
+      transition: var(--transition-smooth);
+      box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+      margin-top: 6px;
+    }
+    .auth-card .google-btn:hover { transform: scale(1.02); background: #f0f0f0; }
+    .auth-card .google-btn img { width: 24px; height: 24px; }
+    .auth-card .note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 16px;
+      border-top: 1px solid var(--border-glass);
+      padding-top: 14px;
+    }
+
+    /* ===== باقي التنسيقات (نفس الكود السابق، مختصرة للاختصار) ===== */
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
       padding: 14px 0; background: var(--header-bg);
@@ -163,7 +267,6 @@
     .hamburger { display: none; flex-direction: column; gap: 5px; padding: 4px; }
     .hamburger span { width: 26px; height: 2px; background: var(--text-primary); border-radius: 4px; transition: var(--transition-smooth); }
 
-    /* ===== HERO ===== */
     #hero {
       position: relative; min-height: 100vh; display: flex; align-items: center; overflow: hidden; padding-top: 80px;
     }
@@ -216,13 +319,11 @@
     }
     @keyframes spinText { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
 
-    /* ===== SECTIONS ===== */
     section { padding: 60px 0; position: relative; }
     .section-title { font-family: var(--font-display); font-size: 2.4rem; font-weight: 900; text-align: center; margin-bottom: 8px; }
     .section-title .highlight { background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .section-sub { text-align: center; color: var(--text-secondary); font-size: 1rem; max-width: 600px; margin: 0 auto 32px; }
 
-    /* ===== GAMES ===== */
     #games { background: var(--bg-secondary); }
     .games-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; margin-bottom: 40px; }
     .games-controls input {
@@ -279,7 +380,6 @@
     }
     .game-card .btn-buy:hover { transform: scale(1.02); box-shadow: 0 0 50px var(--neon-purple-glow); }
 
-    /* ===== WHY CHOOSE ===== */
     #why-choose { background: var(--bg-primary); }
     .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; }
     .why-item {
@@ -292,7 +392,6 @@
     .why-item h4 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
     .why-item p { font-size: 0.85rem; color: var(--text-secondary); }
 
-    /* ===== TESTIMONIALS ===== */
     #testimonials { background: var(--bg-secondary); }
     .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 20px; margin-bottom: 30px; }
     .testimonial-card {
@@ -329,7 +428,6 @@
     }
     .add-review-box .btn-submit-review:hover { transform: scale(1.02); box-shadow: 0 0 40px var(--neon-purple-glow); }
 
-    /* ===== FAQ ===== */
     #faq { background: var(--bg-primary); padding: 50px 0; }
     .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
     .faq-item { background: var(--faq-bg); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); overflow: hidden; transition: var(--transition-smooth); }
@@ -348,7 +446,6 @@
     }
     .faq-item.active .faq-answer { max-height: 250px; padding: 0 20px 16px; }
 
-    /* ===== PAYMENT & DASHBOARD ===== */
     #contact { background: var(--bg-secondary); padding: 50px 0; }
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
     .contact-info h3 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
@@ -378,7 +475,6 @@
     .contact-form input:focus, .contact-form select:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue-glow); }
     .contact-form input::placeholder { color: var(--text-muted); }
 
-    /* ===== PAYMENT INSTRUCTION ===== */
     .payment-instruction {
       background: var(--payment-highlight); border: 2px solid var(--neon-blue);
       border-radius: var(--radius-md); padding: 18px 20px; margin-bottom: 18px; position: relative;
@@ -416,7 +512,6 @@
     .btn-whatsapp-submit:hover { transform: scale(1.02); box-shadow: 0 0 50px rgba(37,211,102,0.5); background: #20b85a; }
     .btn-whatsapp-submit i { font-size: 1.2rem; }
 
-    /* ===== ADMIN DASHBOARD ===== */
     #admin-panel {
       background: var(--bg-secondary);
       padding: 40px 0;
@@ -481,9 +576,9 @@
       font-weight: 600;
       display: inline-block;
     }
-    .status-pending { background: #fbbf24/20; color: #fbbf24; }
-    .status-confirmed { background: #3b82f6/20; color: #3b82f6; }
-    .status-delivered { background: #22c55e/20; color: #22c55e; }
+    .status-pending { background: rgba(251,191,36,0.2); color: #fbbf24; }
+    .status-confirmed { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .status-delivered { background: rgba(34,197,94,0.2); color: #22c55e; }
     .admin-btn {
       padding: 4px 12px;
       border-radius: 30px;
@@ -496,69 +591,12 @@
     .admin-btn-confirm:hover { background: #2563eb; }
     .admin-btn-deliver { background: #22c55e; color: #fff; }
     .admin-btn-deliver:hover { background: #16a34a; }
-    .admin-btn-danger { background: #ef4444; color: #fff; }
-    .admin-btn-danger:hover { background: #dc2626; }
 
-    /* ===== AUTH ===== */
-    .auth-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9998;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(12px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease;
-    }
-    .auth-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .auth-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
-      border-radius: var(--radius-lg);
-      padding: 48px 40px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-      box-shadow: var(--shadow-card);
-    }
-    .auth-card h2 {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .auth-card p { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem; }
-    .google-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      background: #fff;
-      color: #1a1a2e;
-      padding: 12px 24px;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 1rem;
-      width: 100%;
-      transition: var(--transition-smooth);
-      box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-    }
-    .google-btn:hover { transform: scale(1.02); background: #f0f0f0; }
-    .google-btn img { width: 24px; height: 24px; }
-
-    /* ===== TRUST BADGES ===== */
     #trust-badges { padding: 30px 0; background: var(--bg-primary); border-top: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass); }
     .trust-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px 50px; }
     .trust-item { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-secondary); font-size: 0.85rem; }
     .trust-item i { font-size: 1.4rem; color: var(--neon-blue); }
 
-    /* ===== NOTIFICATIONS ===== */
     .notif-toast {
       position: fixed;
       bottom: 100px;
@@ -579,7 +617,6 @@
     .notif-toast .notif-text { font-size: 0.8rem; font-weight: 500; }
     .notif-toast .notif-text span { color: var(--neon-blue); }
 
-    /* ===== FLOATING BUTTONS ===== */
     .floating-buttons {
       position: fixed; bottom: 28px; right: 28px; z-index: 800;
       display: flex; flex-direction: column; gap: 10px;
@@ -598,7 +635,6 @@
     }
     .floating-buttons .top:hover { border-color: var(--neon-blue); }
 
-    /* ===== FOOTER ===== */
     footer { background: var(--bg-secondary); border-top: 1px solid var(--border-glass); padding: 36px 0 20px; }
     footer .container { display: flex; flex-direction: column; align-items: center; text-align: center; }
     footer .footer-logo {
@@ -617,7 +653,6 @@
     footer .footer-socials a:hover { border-color: var(--neon-blue); color: var(--text-primary); transform: translateY(-3px); }
     footer .footer-copy { font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-glass); padding-top: 16px; width: 100%; }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width:1024px) {
       #hero .container { grid-template-columns:1fr; text-align:center; }
       .hero-content p { margin-left:auto; margin-right:auto; }
@@ -650,6 +685,7 @@
       .contact-methods a { padding:8px 14px; font-size:0.75rem; }
       .floating-buttons a { width:40px; height:40px; font-size:1rem; }
       .payment-instruction .wallet-number { font-size:1.5rem; padding:4px 12px; }
+      .auth-card { padding:30px 20px; }
     }
     .fade-up { opacity:0; transform:translateY(30px); transition:opacity 0.7s ease, transform 0.7s ease; }
     .fade-up.visible { opacity:1; transform:translateY(0); }
@@ -667,21 +703,37 @@
     <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
   </div>
 
-  <!-- ===== AUTH OVERLAY ===== -->
+  <!-- ===== AUTH MODAL (نافذة تسجيل الدخول المخصصة) ===== -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
       <h2>VOID GAMING</h2>
-      <p>سجل الدخول لبدء الشحن وإدارة طلباتك</p>
-      <button class="google-btn" id="googleLoginBtn">
+      <p class="sub">سجل الدخول لبدء الشحن وإدارة طلباتك</p>
+      
+      <div class="quick-accounts">
+        <button class="quick-account" data-email="user@gmail.com" data-name="User">👤 user@gmail.com</button>
+        <button class="quick-account" data-email="admin@void.com" data-name="Admin">🛡️ admin@void.com</button>
+      </div>
+
+      <div class="form-group">
+        <label for="authEmail">البريد الإلكتروني</label>
+        <input type="email" id="authEmail" placeholder="example@gmail.com" value="user@gmail.com" />
+      </div>
+      <div class="form-group">
+        <label for="authName">اسم المستخدم (اختياري)</label>
+        <input type="text" id="authName" placeholder="اسمك" value="User" />
+      </div>
+
+      <button class="google-btn" id="customLoginBtn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24" height="24">
           <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
           <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
           <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
           <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
         </svg>
-        تسجيل الدخول بحساب Google
+        تسجيل الدخول
       </button>
-      <p style="font-size:0.7rem;color:var(--text-muted);margin-top:16px;">سيتم تخزين بياناتك محلياً بشكل آمن</p>
+
+      <div class="note">🔒 محاكاة تسجيل الدخول – يتم تخزين البيانات محلياً فقط</div>
     </div>
   </div>
 
@@ -856,7 +908,7 @@
     </div>
   </section>
 
-  <!-- ===== ADMIN DASHBOARD (لوحة التحكم) ===== -->
+  <!-- ===== ADMIN DASHBOARD ===== -->
   <section id="admin-panel" aria-label="Admin Dashboard">
     <div class="admin-container">
       <div class="admin-header">
@@ -912,17 +964,14 @@
 
   <script>
     // ================================================================
-    //  COMPLETE ALL-IN-ONE SCRIPT
-    //  يحتوي على: Auth (Google OAuth محاكي)، نظام الطلبات،
-    //  لوحة تحكم الأدمن، شعار ثلاثي الأبعاد، إشعارات، تخزين محلي
+    //  COMPLETE ALL-IN-ONE SCRIPT مع نافذة دخول مخصصة
     // ================================================================
 
     (function() {
       'use strict';
 
-      // ---------- CONSTANTS ----------
       const VODAFONE_NUMBER = '0150033918';
-      const ADMIN_EMAIL = 'admin@void.com'; // البريد الإلكتروني للأدمن (سيتم استخدامه للتحقق)
+      const ADMIN_EMAIL = 'admin@void.com';
 
       const CONTACTS = {
         whatsapp: 'https://wa.me/201500339318',
@@ -930,18 +979,20 @@
         instagram: 'https://instagram.com/chilldiavolo'
       };
 
-      // ---------- STATE ----------
-      let currentUser = null; // { email, name, picture, isAdmin }
+      let currentUser = null;
       let orders = [];
       let reviews = [];
       let allGames = [];
       let currentLang = 'ar';
       let currentTheme = 'dark';
 
-      // ---------- DOM REFS ----------
+      // DOM refs
       const loader = document.getElementById('loader');
       const authOverlay = document.getElementById('authOverlay');
-      const googleLoginBtn = document.getElementById('googleLoginBtn');
+      const authEmail = document.getElementById('authEmail');
+      const authName = document.getElementById('authName');
+      const customLoginBtn = document.getElementById('customLoginBtn');
+      const quickAccounts = document.querySelectorAll('.quick-account');
       const logoutBtn = document.getElementById('logoutBtn');
       const themeToggle = document.getElementById('themeToggle');
       const themeIcon = document.getElementById('themeIcon');
@@ -972,16 +1023,11 @@
       const floatWhatsapp = document.getElementById('floatWhatsapp');
       const floatTelegram = document.getElementById('floatTelegram');
 
-      // =============================================================
-      // 1. AUTH (محاكي Google OAuth باستخدام LocalStorage)
-      // =============================================================
+      // ===== AUTH =====
       function loadUserFromStorage() {
         const stored = localStorage.getItem('void_user');
         if (stored) {
-          try {
-            currentUser = JSON.parse(stored);
-            return currentUser;
-          } catch (e) {}
+          try { return JSON.parse(stored); } catch (e) {}
         }
         return null;
       }
@@ -995,23 +1041,18 @@
         currentUser = null;
       }
 
-      // محاكي تسجيل الدخول عبر Google (في الواقع سيطلب البريد الإلكتروني)
-      function loginWithGoogle() {
-        // نعرض نافذة منبسطة لمحاكاة اختيار حساب Google
-        const email = prompt('أدخل بريدك الإلكتروني (لمحاكاة Google OAuth):', 'user@gmail.com');
+      function loginUser(email, name) {
         if (!email) return;
-        const name = email.split('@')[0];
         const isAdmin = (email === ADMIN_EMAIL);
         currentUser = {
           email: email,
-          name: name,
+          name: name || email.split('@')[0],
           picture: null,
           isAdmin: isAdmin
         };
         saveUserToStorage(currentUser);
         updateUIAfterAuth();
-        showNotification('تم تسجيل الدخول بنجاح! مرحباً ' + name);
-        // إغلاق نافذة المصادقة
+        showNotification('تم تسجيل الدخول بنجاح! مرحباً ' + currentUser.name);
         authOverlay.classList.add('hidden');
       }
 
@@ -1024,7 +1065,6 @@
 
       function updateUIAfterAuth() {
         if (currentUser) {
-          // إظهار لوحة التحكم للأدمن فقط
           const adminPanel = document.getElementById('admin-panel');
           if (currentUser.isAdmin) {
             adminPanel.style.display = 'block';
@@ -1033,26 +1073,17 @@
           } else {
             adminPanel.style.display = 'none';
           }
-          // إظهار زر الخروج
           logoutBtn.style.display = 'inline-block';
         } else {
           document.getElementById('admin-panel').style.display = 'none';
           logoutBtn.style.display = 'none';
         }
-        // تحديث الإشعارات
-        renderNotifications();
       }
 
-      // =============================================================
-      // 2. ORDERS (تخزين محلي)
-      // =============================================================
+      // ===== ORDERS =====
       function loadOrders() {
         const stored = localStorage.getItem('void_orders');
-        if (stored) {
-          try { orders = JSON.parse(stored); } catch (e) { orders = []; }
-        } else {
-          orders = [];
-        }
+        if (stored) { try { orders = JSON.parse(stored); } catch (e) { orders = []; } } else { orders = []; }
         return orders;
       }
 
@@ -1072,13 +1103,12 @@
           server: data.server || '',
           senderPhone: data.senderPhone || '',
           receiptImage: data.receiptImage || '',
-          status: 'pending_payment', // pending_payment, payment_confirmed, in_progress, delivered
+          status: 'pending_payment',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
         orders.unshift(newOrder);
         saveOrders();
-        // إشعار للأدمن (محاكاة)
         if (currentUser && currentUser.isAdmin) {
           showNotification('📩 طلب جديد من ' + newOrder.userName);
         }
@@ -1093,7 +1123,6 @@
           order.updatedAt = new Date().toISOString();
           saveOrders();
           renderAdminOrders();
-          // إشعار للمستخدم إذا تم التسليم
           if (newStatus === 'delivered') {
             showNotification('✅ تم تسليم طلبك! شكراً لاستخدامك VOID GAMING.');
           }
@@ -1102,15 +1131,10 @@
         return false;
       }
 
-      // =============================================================
-      // 3. REVIEWS
-      // =============================================================
+      // ===== REVIEWS =====
       function loadReviews() {
         const stored = localStorage.getItem('void_reviews');
-        if (stored) {
-          try { reviews = JSON.parse(stored); } catch (e) { reviews = []; }
-        } else {
-          // بيانات افتراضية
+        if (stored) { try { reviews = JSON.parse(stored); } catch (e) { reviews = []; } } else {
           reviews = [
             { name: 'أحمد خالد', text: 'أفضل موقع شحن بلا منازع، وصلتني الرصيد في دقائق!', stars: 5 },
             { name: 'Sarah M.', text: 'Fast and reliable! Highly recommend for MLBB diamonds.', stars: 5 },
@@ -1118,7 +1142,6 @@
             { name: 'James R.', text: 'Best prices for Valorant points, service is top-notch.', stars: 4 },
             { name: 'Layla Ahmed', text: 'I love the design and speed. Will recommend to all my squad.', stars: 5 },
           ];
-          // إضافة 100 تقييم عشوائي
           const names = ['Ali', 'Omar', 'Zain', 'Huda', 'Rayan', 'Safa', 'Kareem', 'Lina', 'Bassam', 'Rania'];
           const msgs = ['Great service!', 'Very fast.', 'Recommended!', 'Top quality!', 'Best prices', 'Will come again',
             'Excellent support', 'تحفة', 'سريع جداً', 'ممتاز'
@@ -1145,14 +1168,10 @@
         renderReviews();
       }
 
-      // =============================================================
-      // 4. GAMES DATA
-      // =============================================================
+      // ===== GAMES =====
       function loadGames() {
         const stored = localStorage.getItem('void_games');
-        if (stored) {
-          try { allGames = JSON.parse(stored); } catch (e) { allGames = []; }
-        }
+        if (stored) { try { allGames = JSON.parse(stored); } catch (e) { allGames = []; } }
         if (!allGames || allGames.length === 0) {
           allGames = [
             { id: 'pubg', name: 'PUBG Mobile', category: 'battle', icon: 'fa-solid fa-crosshairs',
@@ -1191,11 +1210,7 @@
         localStorage.setItem('void_games', JSON.stringify(allGames));
       }
 
-      // =============================================================
-      // 5. RENDER FUNCTIONS
-      // =============================================================
-
-      // 5.1 GAMES
+      // ===== RENDER FUNCTIONS =====
       function renderGames(games) {
         gamesGrid.innerHTML = '';
         games.forEach((game) => {
@@ -1215,7 +1230,6 @@
           `;
           gamesGrid.appendChild(card);
 
-          // 3D tilt
           card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -1256,7 +1270,6 @@
         renderGames(filtered);
       }
 
-      // 5.2 ORDER FORM
       function populateOrderForm(game) {
         orderGame.value = game.id;
         updatePackageOptions(game.id);
@@ -1288,7 +1301,6 @@
         });
       }
 
-      // 5.3 WHATSAPP ORDER
       function sendOrderViaWhatsApp() {
         const name = document.getElementById('orderName').value.trim();
         const game = orderGame.value;
@@ -1309,12 +1321,9 @@
         const pkg = gameData ? gameData.packages[parseInt(pkgIdx)] : null;
         const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
 
-        // قراءة الصورة وتحويلها إلى Base64 لإرفاقها في الرسالة (اختياري)
         const reader = new FileReader();
         reader.onload = function(e) {
-          const imageData = e.target.result; // base64
-
-          // إنشاء الطلب في قاعدة البيانات المحلية
+          const imageData = e.target.result;
           const newOrder = createOrder({
             name: name,
             game: gameName,
@@ -1323,10 +1332,9 @@
             gameId: gameId,
             server: server,
             senderPhone: senderPhone,
-            receiptImage: imageData // تخزين الصورة مؤقتاً
+            receiptImage: imageData
           });
 
-          // بناء رسالة واتساب
           const message =
             `مرحباً، أريد شحن لعبة *${gameName}*%0A` +
             `الباقة: *${pkgLabel}*%0A` +
@@ -1339,15 +1347,12 @@
           const waUrl = CONTACTS.whatsapp + '?text=' + message;
           window.open(waUrl, '_blank');
 
-          // إشعار
           showNotification('تم إرسال طلبك! سنتواصل معك قريباً.');
-          // إعادة تعيين النموذج
           document.getElementById('orderFormElement').reset();
         };
         reader.readAsDataURL(file);
       }
 
-      // 5.4 ADMIN DASHBOARD
       function renderAdminOrders() {
         if (!adminOrdersBody) return;
         const filtered = currentUser && currentUser.isAdmin ? orders : [];
@@ -1380,7 +1385,6 @@
         });
         adminOrdersBody.innerHTML = html;
 
-        // إضافة مستمعات للأزرار
         adminOrdersBody.querySelectorAll('[data-action]').forEach(btn => {
           btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -1400,7 +1404,6 @@
         });
       }
 
-      // 5.5 REVIEWS
       function renderReviews() {
         testimonialGrid.innerHTML = '';
         const displayed = reviews.slice(0, 8);
@@ -1418,7 +1421,6 @@
         reviewCountSpan.textContent = reviews.length + '+';
       }
 
-      // 5.6 FAQ
       function renderFAQ() {
         const faqs = [
           { q: 'ما سرعة التوصيل؟', a: 'يتم تسليم معظم الشحنات خلال 5-15 دقيقة بعد تأكيد الدفع.' },
@@ -1447,7 +1449,6 @@
         });
       }
 
-      // 5.7 CONTACTS
       function renderContacts() {
         const methods = [
           { icon: 'fab fa-whatsapp', label: 'WhatsApp', url: CONTACTS.whatsapp },
@@ -1478,14 +1479,12 @@
         floatTelegram.href = CONTACTS.telegram;
       }
 
-      // 5.8 NOTIFICATIONS (Toast)
       function showNotification(message) {
         notifMessage.textContent = message;
         notifToast.classList.remove('hide');
         setTimeout(() => { notifToast.classList.add('hide'); }, 5000);
       }
 
-      // 5.9 COUNTERS
       function animateCounters() {
         document.querySelectorAll('.stat-item .number').forEach(counter => {
           const target = parseInt(counter.dataset.count);
@@ -1501,9 +1500,7 @@
         });
       }
 
-      // =============================================================
-      // 6. THREE.JS 3D BACKGROUND
-      // =============================================================
+      // ===== THREE.JS =====
       function initThree() {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, threeContainer.clientWidth / threeContainer.clientHeight, 0.1, 1000);
@@ -1581,9 +1578,7 @@
 
       let threeInstance = null;
 
-      // =============================================================
-      // 7. GSAP ANIMATIONS
-      // =============================================================
+      // ===== GSAP =====
       function initGSAP() {
         gsap.registerPlugin(ScrollTrigger);
         gsap.from('.hero-content h1', { opacity: 0, y: 50, duration: 1.2, delay: 0.3, ease: 'power4.out' });
@@ -1602,9 +1597,7 @@
         });
       }
 
-      // =============================================================
-      // 8. THEME
-      // =============================================================
+      // ===== THEME =====
       function setTheme(theme) {
         currentTheme = theme;
         document.documentElement.setAttribute('data-theme', theme);
@@ -1616,15 +1609,12 @@
         setTheme(currentTheme === 'dark' ? 'light' : 'dark');
       }
 
-      // =============================================================
-      // 9. LANGUAGE (محاكاة بسيطة)
-      // =============================================================
+      // ===== LANGUAGE =====
       function setLang(lang) {
         currentLang = lang;
         localStorage.setItem('void-lang', lang);
         langLabel.textContent = lang.toUpperCase();
         document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-        // ترجمة بسيطة (يمكن توسيعها)
         if (lang === 'en') {
           document.querySelector('title').textContent = 'VOID GAMING | Premium Gaming Top-Ups';
         } else {
@@ -1636,9 +1626,7 @@
         setLang(currentLang === 'en' ? 'ar' : 'en');
       }
 
-      // =============================================================
-      // 10. BACK TO TOP
-      // =============================================================
+      // ===== BACK TO TOP =====
       function initBackToTop() {
         backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
         window.addEventListener('scroll', () => {
@@ -1649,9 +1637,7 @@
         backToTop.style.pointerEvents = 'none';
       }
 
-      // =============================================================
-      // 11. HAMBURGER
-      // =============================================================
+      // ===== HAMBURGER =====
       function initHamburger() {
         hamburger.addEventListener('click', () => {
           const open = navLinks.classList.toggle('open');
@@ -1665,9 +1651,7 @@
         });
       }
 
-      // =============================================================
-      // 12. SEARCH & FILTER
-      // =============================================================
+      // ===== SEARCH & FILTER =====
       function initSearchFilter() {
         gameSearch.addEventListener('input', filterGames);
         filterGroup.addEventListener('click', (e) => {
@@ -1679,9 +1663,7 @@
         });
       }
 
-      // =============================================================
-      // 13. COPY WALLET
-      // =============================================================
+      // ===== COPY WALLET =====
       function copyWalletNumber() {
         const text = walletNumberSpan.textContent.trim();
         if (navigator.clipboard) {
@@ -1707,42 +1689,26 @@
         setTimeout(() => { copyWalletBtn.innerHTML = original; }, 2000);
       }
 
-      // =============================================================
-      // 14. INIT
-      // =============================================================
+      // ===== INIT =====
       function init() {
-        // تحميل البيانات
         loadGames();
         loadOrders();
         loadReviews();
 
-        // Three.js
         threeInstance = initThree();
-
-        // عرض الألعاب
         renderGames(allGames);
         populateGameDropdown();
-
-        // عرض التقييمات والأسئلة الشائعة والاتصالات
         renderReviews();
         renderFAQ();
         renderContacts();
-
-        // الإحصائيات
         animateCounters();
-
-        // الأزرار
         initBackToTop();
         initHamburger();
         initSearchFilter();
 
-        // نسخ رقم المحفظة
         copyWalletBtn.addEventListener('click', copyWalletNumber);
-
-        // طلب واتساب
         whatsappBtn.addEventListener('click', sendOrderViaWhatsApp);
 
-        // إضافة تقييم
         reviewForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const name = document.getElementById('reviewName').value.trim();
@@ -1757,11 +1723,36 @@
           }
         });
 
-        // تسجيل الدخول والخروج
-        googleLoginBtn.addEventListener('click', loginWithGoogle);
+        // أزرار الحسابات السريعة
+        quickAccounts.forEach(btn => {
+          btn.addEventListener('click', function() {
+            const email = this.dataset.email;
+            const name = this.dataset.name || email.split('@')[0];
+            authEmail.value = email;
+            authName.value = name;
+          });
+        });
+
+        // زر تسجيل الدخول المخصص
+        customLoginBtn.addEventListener('click', function() {
+          const email = authEmail.value.trim();
+          const name = authName.value.trim() || email.split('@')[0];
+          if (email) {
+            loginUser(email, name);
+          } else {
+            alert('الرجاء إدخال البريد الإلكتروني');
+          }
+        });
+
+        // تسجيل الدخول بالضغط على Enter في حقل البريد
+        authEmail.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            customLoginBtn.click();
+          }
+        });
+
         logoutBtn.addEventListener('click', logout);
 
-        // الثيم واللغة
         const savedTheme = localStorage.getItem('void-theme') || 'dark';
         setTheme(savedTheme);
         themeToggle.addEventListener('click', toggleTheme);
@@ -1770,10 +1761,8 @@
         setLang(savedLang);
         langToggle.addEventListener('click', toggleLang);
 
-        // GSAP
         initGSAP();
 
-        // التحقق من وجود مستخدم مسجل
         const user = loadUserFromStorage();
         if (user) {
           currentUser = user;
@@ -1783,10 +1772,8 @@
           authOverlay.classList.remove('hidden');
         }
 
-        // إخفاء اللودر
         setTimeout(() => { loader.classList.add('hidden'); }, 2200);
 
-        // إعادة تحجيم Three.js عند تغيير حجم الشاشة
         window.addEventListener('resize', () => {
           if (threeInstance) {
             const w = threeContainer.clientWidth;
@@ -1798,11 +1785,8 @@
         });
 
         console.log('🚀 VOID GAMING loaded successfully.');
-        console.log('👤 Current user:', currentUser);
-        console.log('📦 Orders:', orders);
       }
 
-      // تشغيل التطبيق عند تحميل الصفحة
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
