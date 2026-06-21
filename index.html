@@ -447,6 +447,42 @@
     }
     .order-success-msg.show { display: block; }
 
+    /* ===== MY ORDERS (طلباتي) ===== */
+    #my-orders {
+      background: var(--bg-secondary);
+      padding: 40px 0;
+      margin-top: 20px;
+      border-top: 1px solid var(--border-glass);
+    }
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .order-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      transition: var(--transition-smooth);
+    }
+    .order-card:hover { border-color: var(--neon-blue); transform: translateY(-3px); }
+    .order-card .order-status {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 60px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .order-card .order-status.pending { background: rgba(251,191,36,0.2); color: #fbbf24; }
+    .order-card .order-status.confirmed { background: rgba(59,130,246,0.2); color: #3b82f6; }
+    .order-card .order-status.delivered { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .order-card .order-game { font-family: var(--font-display); font-size: 0.9rem; color: var(--text-primary); }
+    .order-card .order-detail { font-size: 0.8rem; color: var(--text-secondary); margin: 4px 0; }
+    .order-empty { color: var(--text-muted); text-align: center; padding: 30px 0; }
+
     /* ===== ADMIN DASHBOARD ===== */
     #admin-panel {
       background: var(--bg-secondary);
@@ -657,6 +693,7 @@
       .payment-instruction .wallet-number { font-size:1.8rem; padding:4px 16px; }
       .testimonial-grid { grid-template-columns:1fr; }
       .admin-table th, .admin-table td { padding:8px 10px; font-size:0.75rem; }
+      .orders-grid { grid-template-columns:1fr; }
     }
     @media (max-width:500px) {
       .hero-content h1 { font-size:1.8rem; }
@@ -722,6 +759,7 @@
         <a href="#testimonials">آراء عملائنا</a>
         <a href="#faq">الأسئلة الشائعة</a>
         <a href="#contact" style="color:var(--neon-blue);font-weight:700;">⬆️ شحن</a>
+        <a href="#my-orders" style="color:var(--neon-purple);font-weight:600;">📦 طلباتي</a>
         <a href="#admin-panel" style="color:var(--neon-purple);font-weight:700;">📋 لوحة التحكم</a>
         <a href="#" id="logoutBtn" style="color:#ff6b6b;font-weight:600;">تسجيل الخروج</a>
       </nav>
@@ -865,6 +903,17 @@
     </div>
   </section>
 
+  <!-- ===== MY ORDERS (طلباتي) ===== -->
+  <section id="my-orders" aria-label="My Orders">
+    <div class="container">
+      <h2 class="section-title">📦 <span class="highlight">طلباتي</span></h2>
+      <p class="section-sub">جميع طلباتك مع حالة كل طلب</p>
+      <div id="ordersContainer" class="orders-grid">
+        <!-- يتم تعبئتها بواسطة JavaScript -->
+      </div>
+    </div>
+  </section>
+
   <!-- ===== ADMIN DASHBOARD ===== -->
   <section id="admin-panel" aria-label="Admin Dashboard">
     <div class="admin-container">
@@ -936,7 +985,7 @@
 
   <script>
     // ================================================================
-    //  نظام VOID GAMING المتكامل (مع تحديثات الإشعارات والأدمن)
+    //  نظام VOID GAMING المتكامل - مع إصلاح مشكلة الإرسال وطلبات العميل
     // ================================================================
 
     (function() {
@@ -983,6 +1032,7 @@
       const reviewCountSpan = document.getElementById('reviewCount');
       const adminOrdersBody = document.getElementById('adminOrdersBody');
       const adminUserBadge = document.getElementById('adminUserBadge');
+      const ordersContainer = document.getElementById('ordersContainer');
       const notifToast = document.getElementById('notifToast');
       const notifMessage = document.getElementById('notifMessage');
       const threeContainer = document.getElementById('threeContainer');
@@ -1119,13 +1169,13 @@
         };
         orders.unshift(newOrder);
         saveOrders(orders);
-        // إشعار للأدمن (إذا كان الأدمن مسجلاً)
+        // إشعار للأدمن
+        addNotification(ADMIN_USERNAME, '📩 طلب جديد من ' + newOrder.userName + ' (لعبة: ' + newOrder.game + ')');
         if (currentUser && currentUser.isAdmin) {
           showNotification('📩 طلب جديد من ' + newOrder.userName);
         }
-        // إضافة إشعار للأدمن في نظام الإشعارات (حتى لو لم يكن مسجلاً حالياً)
-        addNotification(ADMIN_USERNAME, '📩 طلب جديد من ' + newOrder.userName + ' (لعبة: ' + newOrder.game + ')');
         renderAdminOrders();
+        renderMyOrders();
         return newOrder;
       }
 
@@ -1136,10 +1186,9 @@
           order.updatedAt = new Date().toISOString();
           saveOrders(orders);
           renderAdminOrders();
+          renderMyOrders();
           if (newStatus === 'delivered') {
-            // إشعار للعميل
             addNotification(order.userName, '✅ تم تسليم طلبك "' + order.game + '"! شكراً لاستخدامك VOID GAMING.');
-            // إشعار للأدمن
             addNotification(ADMIN_USERNAME, '✅ تم تسليم طلب ' + order.userName + ' (' + order.game + ')');
             if (currentUser && currentUser.username === order.userName) {
               showNotification('✅ تم تسليم طلبك!');
@@ -1153,7 +1202,7 @@
       }
 
       // =============================================================
-      // 3. نظام الإشعارات (Notifications) - مع دعم المستخدمين
+      // 3. نظام الإشعارات (Notifications)
       // =============================================================
       function getNotifications() {
         const stored = localStorage.getItem('void_notifications');
@@ -1176,7 +1225,6 @@
           timestamp: new Date().toISOString()
         });
         saveNotifications(notifs);
-        // إذا كان المستخدم الحالي هو صاحب الإشعار، أظهره فوراً
         if (currentUser && currentUser.username === userName) {
           showNotification(message);
         }
@@ -1200,7 +1248,7 @@
       }
 
       // =============================================================
-      // 4. إدارة الألعاب (للقوائم المنسدلة فقط)
+      // 4. إدارة الألعاب
       // =============================================================
       function loadGames() {
         const stored = localStorage.getItem('void_games');
@@ -1237,7 +1285,7 @@
       }
 
       // =============================================================
-      // 5. إدارة التقييمات (Reviews)
+      // 5. إدارة التقييمات
       // =============================================================
       function getReviews() {
         const stored = localStorage.getItem('void_reviews');
@@ -1277,9 +1325,8 @@
       }
 
       // =============================================================
-      // 6. دوال العرض (Rendering)
+      // 6. دوال العرض
       // =============================================================
-
       function updateUI() {
         if (currentUser) {
           authOverlay.classList.add('hidden');
@@ -1292,16 +1339,17 @@
           } else {
             adminPanel.style.display = 'none';
           }
-          // عرض الإشعارات غير المقروءة للمستخدم
+          // عرض الإشعارات غير المقروءة
           const notifs = getUserNotifications(currentUser.username);
-          notifs.forEach(n => {
-            showNotification(n.message);
-          });
+          notifs.forEach(n => showNotification(n.message));
           markNotificationsAsRead(currentUser.username);
+          // عرض طلبات العميل
+          renderMyOrders();
         } else {
           authOverlay.classList.remove('hidden');
           logoutBtn.style.display = 'none';
           document.getElementById('admin-panel').style.display = 'none';
+          ordersContainer.innerHTML = '';
         }
       }
 
@@ -1382,7 +1430,7 @@
 
       function renderAdminOrders() {
         if (!adminOrdersBody) return;
-        const filtered = orders; // الأدمن يرى جميع الطلبات
+        const filtered = orders;
         if (filtered.length === 0) {
           adminOrdersBody.innerHTML =
             `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">لا توجد طلبات حالياً</td></tr>`;
@@ -1419,7 +1467,6 @@
         });
         adminOrdersBody.innerHTML = html;
 
-        // مستمعات الأزرار
         adminOrdersBody.querySelectorAll('[data-action]').forEach(btn => {
           btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -1438,7 +1485,6 @@
           });
         });
 
-        // مستمعات أزرار عرض الإيصال
         adminOrdersBody.querySelectorAll('.admin-btn-receipt').forEach(btn => {
           btn.addEventListener('click', function() {
             const receiptData = this.dataset.receipt;
@@ -1448,6 +1494,40 @@
             }
           });
         });
+      }
+
+      function renderMyOrders() {
+        if (!ordersContainer) return;
+        if (!currentUser) {
+          ordersContainer.innerHTML = `<div class="order-empty">سجل الدخول لعرض طلباتك</div>`;
+          return;
+        }
+        const userOrders = orders.filter(o => o.userName === currentUser.username);
+        if (userOrders.length === 0) {
+          ordersContainer.innerHTML = `<div class="order-empty">لا توجد طلبات حالياً</div>`;
+          return;
+        }
+        let html = '';
+        userOrders.forEach(order => {
+          const statusClass = order.status === 'pending_payment' ? 'pending' :
+            order.status === 'payment_confirmed' ? 'confirmed' :
+            'delivered';
+          const statusText = order.status === 'pending_payment' ? 'في انتظار الدفع' :
+            order.status === 'payment_confirmed' ? 'تم تأكيد الدفع' :
+            'تم التسليم';
+          html += `
+            <div class="order-card">
+              <div class="order-game">🎮 ${order.game}</div>
+              <div class="order-detail">📦 ${order.package}</div>
+              <div class="order-detail">💰 $${order.price}</div>
+              <div class="order-detail">🆔 ${order.gameId}</div>
+              <div class="order-detail">📱 ${order.senderPhone}</div>
+              <div><span class="order-status ${statusClass}">${statusText}</span></div>
+              <div class="order-detail" style="font-size:0.65rem;color:var(--text-muted);">${new Date(order.createdAt).toLocaleString()}</div>
+            </div>
+          `;
+        });
+        ordersContainer.innerHTML = html;
       }
 
       function populateGameDropdowns() {
@@ -1498,14 +1578,16 @@
       }
 
       // =============================================================
-      // 7. إرسال الطلب (المنطق الأساسي)
+      // 7. إرسال الطلب - إصلاح المشكلة
       // =============================================================
       function submitOrder() {
+        // التحقق من تسجيل الدخول
         if (!currentUser) {
           alert('يرجى تسجيل الدخول أولاً.');
           return;
         }
 
+        // قراءة البيانات
         const name = document.getElementById('orderName').value.trim();
         const game = orderGame.value;
         const pkgIdx = orderPackage.value;
@@ -1515,44 +1597,66 @@
         const fileInput = document.getElementById('orderScreenshot');
         const file = fileInput.files[0];
 
+        // التحقق من صحة الإدخال
         if (!name || !game || pkgIdx === '' || !gameId || !senderPhone || !file) {
           alert('يرجى ملء جميع الحقول المطلوبة بما في ذلك صورة الإيصال.');
           return;
         }
 
+        // الحصول على بيانات اللعبة والباقة
         const gameData = allGames.find(g => g.id === game);
         const gameName = gameData ? gameData.name : 'غير معروف';
         const pkg = gameData ? gameData.packages[parseInt(pkgIdx)] : null;
         const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
 
+        // قراءة الصورة باستخدام FileReader
         const reader = new FileReader();
         reader.onload = function(e) {
-          const imageData = e.target.result;
-          const newOrder = createOrder({
-            name: name,
-            game: gameName,
-            pkg: pkgLabel,
-            price: pkg ? pkg.price : 0,
-            gameId: gameId,
-            server: server,
-            senderPhone: senderPhone,
-            receiptImage: imageData
-          });
+          try {
+            const imageData = e.target.result; // Base64 string
 
-          orderSuccessMsg.classList.add('show');
-          setTimeout(() => {
-            orderSuccessMsg.classList.remove('show');
-          }, 8000);
+            // إنشاء الطلب
+            const newOrder = createOrder({
+              name: name,
+              game: gameName,
+              pkg: pkgLabel,
+              price: pkg ? pkg.price : 0,
+              gameId: gameId,
+              server: server,
+              senderPhone: senderPhone,
+              receiptImage: imageData
+            });
 
-          document.getElementById('orderFormElement').reset();
-          orderPackage.innerHTML = '<option value="">-- اختر --</option>';
-          orderGame.value = '';
-          showNotification('✅ تم إرسال طلبك بنجاح!');
+            // إظهار رسالة النجاح
+            orderSuccessMsg.classList.add('show');
+            setTimeout(() => {
+              orderSuccessMsg.classList.remove('show');
+            }, 8000);
 
-          if (currentUser && currentUser.isAdmin) {
-            renderAdminOrders();
+            // إعادة تعيين النموذج
+            document.getElementById('orderFormElement').reset();
+            orderPackage.innerHTML = '<option value="">-- اختر --</option>';
+            orderGame.value = '';
+
+            // إشعار للمستخدم
+            showNotification('✅ تم إرسال طلبك بنجاح!');
+
+            // تحديث واجهة العميل والأدمن
+            renderMyOrders();
+            if (currentUser && currentUser.isAdmin) {
+              renderAdminOrders();
+            }
+          } catch (err) {
+            console.error('خطأ في معالجة الطلب:', err);
+            alert('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى.');
           }
         };
+
+        reader.onerror = function() {
+          alert('حدث خطأ أثناء قراءة الصورة. تأكد من اختيار ملف صحيح.');
+        };
+
+        // بدء قراءة الملف
         reader.readAsDataURL(file);
       }
 
@@ -1688,7 +1792,7 @@
       }
 
       // =============================================================
-      // 11. أدوات مساعدة (نسخ، العودة للأعلى، القائمة)
+      // 11. أدوات مساعدة
       // =============================================================
       function copyWalletNumber() {
         const text = walletNumberSpan.textContent.trim();
@@ -1760,10 +1864,10 @@
         copyWalletBtn.addEventListener('click', copyWalletNumber);
         mainSubmitBtn.addEventListener('click', submitOrder);
 
-        // زر تحديث لوحة الأدمن
         refreshAdminBtn.addEventListener('click', function() {
           orders = getOrders();
           renderAdminOrders();
+          renderMyOrders();
           showNotification('تم تحديث الطلبات.');
         });
 
