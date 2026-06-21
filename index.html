@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        /* ========== CSS ========== */
+        /* ===== RESET & VARIABLES ===== */
         :root {
             --bg-primary: #050505;
             --bg-secondary: #0a0a0f;
@@ -473,7 +473,7 @@
             }
         }
 
-        /* SECTION COMMON */
+        /* SECTIONS */
         section {
             padding: 60px 0;
             position: relative;
@@ -795,7 +795,7 @@
             color: var(--text-muted);
         }
 
-        /* Payment Instruction - رقم المحفظة واضح وبارز */
+        /* ===== PAYMENT INSTRUCTION - الرقم ظاهر وواضح جداً ===== */
         .payment-instruction {
             background: var(--payment-highlight);
             border: 2px solid var(--neon-blue);
@@ -823,7 +823,7 @@
             letter-spacing: 1px;
         }
         .payment-instruction .wallet-number {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
@@ -832,10 +832,14 @@
             margin: 6px 0 8px;
             display: inline-block;
             border: 2px solid var(--neon-blue);
-            padding: 6px 28px;
+            padding: 8px 32px;
             border-radius: 60px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             box-shadow: 0 0 30px var(--neon-blue-glow);
+            /* تأكيد إضافي: */
+            color: var(--neon-blue) !important;
+            -webkit-text-fill-color: var(--neon-blue) !important;
+            background: rgba(0, 0, 0, 0.3);
         }
         .payment-instruction .copy-btn {
             background: var(--bg-glass);
@@ -857,7 +861,7 @@
             margin: 8px 0 4px;
         }
 
-        /* زر واتساب الجديد */
+        /* زر واتساب */
         .btn-whatsapp-submit {
             width: 100%;
             padding: 14px;
@@ -1049,36 +1053,6 @@
             width: 100%;
         }
 
-        /* RTL */
-        [dir="ltr"] .nav-links {
-            gap: 28px;
-        }
-        [dir="ltr"] .hero-content p {
-            margin-left: 0;
-            margin-right: auto;
-        }
-        [dir="ltr"] .hero-buttons {
-            flex-direction: row;
-        }
-        [dir="ltr"] .contact-grid {
-            direction: ltr;
-        }
-        [dir="ltr"] .faq-question {
-            text-align: left;
-        }
-        [dir="ltr"] .floating-buttons {
-            right: 28px;
-            left: auto;
-        }
-        [dir="ltr"] .order-notification {
-            right: 24px;
-            left: auto;
-        }
-        [dir="ltr"] .payment-instruction::before {
-            right: 16px;
-            left: auto;
-        }
-
         /* RESPONSIVE */
         @media (max-width: 1024px) {
             #hero .container {
@@ -1143,7 +1117,7 @@
                 gap: 16px 30px;
             }
             .payment-instruction .wallet-number {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
                 padding: 4px 16px;
             }
             .testimonial-grid {
@@ -1168,7 +1142,7 @@
                 font-size: 1rem;
             }
             .payment-instruction .wallet-number {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
                 padding: 4px 12px;
             }
         }
@@ -1390,11 +1364,12 @@
                     </div>
                 </div>
                 <div class="contact-form" id="orderForm">
-                    <!-- Payment Instruction - رقم المحفظة واضح وبارز -->
+                    <!-- ===== PAYMENT INSTRUCTION - الرقم ظاهر وواضح ===== -->
                     <div class="payment-instruction">
                         <h4>💳 طريقة الدفع (فودافون كاش)</h4>
                         <p class="step-hint">قم بتحويل المبلغ المطلوب إلى رقم المحفظة التالي:</p>
                         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+                            <!-- الرقم مكتوب هنا بوضوح -->
                             <span class="wallet-number" id="walletNumber">0150033918</span>
                             <button class="copy-btn" id="copyWalletBtn" aria-label="نسخ الرقم">
                                 <i class="fas fa-copy"></i> نسخ
@@ -1431,7 +1406,7 @@
                             <input type="text" id="orderServer" placeholder="أدخل معرف السيرفر" />
                         </div>
 
-                        <!-- زر واتساب الجديد بدلاً من زر الإرسال -->
+                        <!-- زر واتساب -->
                         <button type="button" class="btn-whatsapp-submit" id="whatsappOrderBtn">
                             <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
                         </button>
@@ -1502,7 +1477,7 @@
                 instagram: 'https://instagram.com/chilldiavolo'
             };
 
-            let allGames = []; // سيتم تعبئتها من الـ JSON
+            let allGames = [];
             let currentLang = 'ar';
             let currentTheme = 'dark';
 
@@ -1552,7 +1527,6 @@
                     'form.idPlace': 'Enter your Game ID',
                     'form.server': 'Server ID (if required)',
                     'form.serverPlace': 'Enter Server ID',
-                    'form.submit': 'Submit Order',
                     'footer.slogan': 'Level Up Instantly',
                     'footer.copy': 'VOID GAMING. All rights reserved.',
                     'order.notif': 'just ordered',
@@ -1609,7 +1583,6 @@
                     'form.idPlace': 'أدخل معرف اللعبة',
                     'form.server': 'معرف السيرفر (إذا لزم)',
                     'form.serverPlace': 'أدخل معرف السيرفر',
-                    'form.submit': 'إرسال الطلب',
                     'footer.slogan': 'ارتقِ بمستواك فوراً',
                     'footer.copy': 'VOID GAMING. جميع الحقوق محفوظة.',
                     'order.notif': 'طلب للتو',
@@ -1820,7 +1793,6 @@
                     allGames = data.games || [];
                     return data;
                 } catch (e) {
-                    // بيانات افتراضية
                     allGames = [
                         { id: 'pubg', name: 'PUBG Mobile', packages: [{ label: '60 UC', price: 1.99 },
                             { label: '300 UC', price: 7.99 }, { label: '600 UC', price: 14.99 },
@@ -1916,32 +1888,26 @@
             }
 
             // =============================================================
-            //  WHATSAPP ORDER (NEW)
+            //  WHATSAPP ORDER
             // =============================================================
             function sendOrderViaWhatsApp() {
-                // جمع البيانات من النموذج
                 const name = document.getElementById('orderName').value.trim();
                 const game = orderGame.value;
                 const pkgIdx = orderPackage.value;
                 const gameId = document.getElementById('orderId').value.trim();
                 const server = document.getElementById('orderServer').value.trim();
 
-                // التحقق من الحقول المطلوبة
                 if (!name || !game || pkgIdx === '' || !gameId) {
                     alert('يرجى ملء جميع الحقول المطلوبة: الاسم، اللعبة، الباقة، ومعرف اللعبة.');
                     return;
                 }
 
-                // جلب اسم اللعبة والباقة
                 const gameData = allGames.find(g => g.id === game);
                 const gameName = gameData ? gameData.name : 'غير معروف';
                 const pkg = gameData ? gameData.packages[parseInt(pkgIdx)] : null;
                 const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
-
-                // رقم فودافون كاش
                 const walletNumber = '0150033918';
 
-                // بناء الرسالة
                 const message =
                     `مرحباً، أريد شحن لعبة *${gameName}*%0A` +
                     `الباقة: *${pkgLabel}*%0A` +
@@ -1950,13 +1916,8 @@
                     `الاسم: *${name}*%0A%0A` +
                     `📸 سأرفق لقطة شاشة للتحويل إلى رقم فودافون كاش *${walletNumber}*`;
 
-                // رابط واتساب مع الرسالة
                 const waUrl = CONTACTS.whatsapp + '?text=' + message;
-
-                // فتح واتساب
                 window.open(waUrl, '_blank');
-
-                // عرض إشعار
                 showOrderNotification(name, gameName);
             }
 
@@ -2171,13 +2132,9 @@
                 initBackToTop();
                 initHamburger();
 
-                // Copy wallet
                 copyWalletBtn.addEventListener('click', copyWalletNumber);
-
-                // WhatsApp order button
                 whatsappBtn.addEventListener('click', sendOrderViaWhatsApp);
 
-                // Handle review form
                 reviewForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const name = document.getElementById('reviewName').value.trim();
