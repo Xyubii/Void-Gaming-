@@ -26,9 +26,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  
   <style>
-    /* ===== كل التنسيقات كما هي (لم تتغير) ===== */
+    /* ===== جميع التنسيقات كما هي (لم تتغير) ===== */
     :root {
       --bg-primary: #050505;
       --bg-secondary: #0a0a0f;
@@ -924,7 +923,6 @@
         <div class="admin-actions">
           <span class="admin-badge" id="adminUserBadge">مرحباً، admin</span>
           <button class="admin-refresh-btn" id="refreshAdminBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
-          <!-- زر حذف جميع الطلبات (للاختبار فقط) -->
           <button class="admin-refresh-btn" id="clearOrdersBtn" style="color:#ff6b6b;"><i class="fas fa-trash"></i> حذف الكل</button>
         </div>
       </div>
@@ -989,7 +987,8 @@
 
   <script>
     // ================================================================
-    //  VOID GAMING - حل مشكلة عدم ظهور الطلبات في لوحة الأدمن
+    //  VOID GAMING - حل نهائي لمشكلة عدم ظهور الطلبات في لوحة الأدمن
+    //  يتم تحديث البيانات من localStorage في كل مرة
     // ================================================================
 
     (function() {
@@ -1178,7 +1177,7 @@
       }
 
       // =============================================================
-      // 2. إدارة الطلبات (Orders) – مع تخزين مرجع الصورة في IndexedDB
+      // 2. إدارة الطلبات (Orders) – جميع الدوال تقرأ من localStorage مباشرة
       // =============================================================
       function getOrders() {
         const stored = localStorage.getItem('void_orders');
@@ -1190,9 +1189,13 @@
 
       function saveOrders(ordersData) {
         localStorage.setItem('void_orders', JSON.stringify(ordersData));
+        // تحديث المتغير العام
+        orders = ordersData;
       }
 
       function createOrder(data) {
+        // تحميل أحدث الطلبات
+        let currentOrders = getOrders();
         const newOrder = {
           id: 'ord_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
           userName: data.name || 'غير معروف',
@@ -1208,24 +1211,26 @@
           updatedAt: new Date().toISOString()
         };
 
-        orders.unshift(newOrder);
-        saveOrders(orders);
+        currentOrders.unshift(newOrder);
+        saveOrders(currentOrders);
 
         if (data.receiptImage) {
           const imageId = 'receipt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
           saveImageToDB(imageId, data.receiptImage)
             .then(() => {
-              const orderToUpdate = orders.find(o => o.id === newOrder.id);
+              let updated = getOrders();
+              const orderToUpdate = updated.find(o => o.id === newOrder.id);
               if (orderToUpdate) {
                 orderToUpdate.receiptImageId = imageId;
-                saveOrders(orders);
-                renderAdminOrders();
+                saveOrders(updated);
+                renderAdminOrders(); // تحديث فوري
                 renderMyOrders();
               }
             })
             .catch(err => console.error('فشل حفظ الصورة:', err));
         }
 
+        // إشعار للأدمن
         addNotification(ADMIN_USERNAME, '📩 طلب جديد من ' + newOrder.userName + ' (لعبة: ' + newOrder.game + ')');
         if (currentUser && currentUser.isAdmin) {
           showNotification('📩 طلب جديد من ' + newOrder.userName);
@@ -1236,11 +1241,12 @@
       }
 
       function updateOrderStatus(orderId, newStatus) {
-        const order = orders.find(o => o.id === orderId);
+        let currentOrders = getOrders();
+        const order = currentOrders.find(o => o.id === orderId);
         if (order) {
           order.status = newStatus;
           order.updatedAt = new Date().toISOString();
-          saveOrders(orders);
+          saveOrders(currentOrders);
           renderAdminOrders();
           renderMyOrders();
           if (newStatus === 'delivered') {
@@ -1370,7 +1376,7 @@
       }
 
       // =============================================================
-      // 6. دوال العرض (مع إصلاح لوحة الأدمن)
+      // 6. دوال العرض (مع قراءة جديدة من localStorage في كل مرة)
       // =============================================================
       function updateUI() {
         if (currentUser) {
@@ -1380,7 +1386,7 @@
           if (currentUser.isAdmin) {
             adminPanel.style.display = 'block';
             adminUserBadge.textContent = 'مرحباً، ' + currentUser.username;
-            renderAdminOrders(); // <- عرض الطلبات فوراً
+            renderAdminOrders(); // عرض الطلبات فوراً
           } else {
             adminPanel.style.display = 'none';
           }
@@ -1469,21 +1475,21 @@
         floatTelegram.href = CONTACTS.telegram;
       }
 
-      // ===== الدالة الرئيسية لعرض الطلبات في لوحة الأدمن (تم إصلاحها) =====
+      // ===== الدالة الرئيسية لعرض الطلبات في لوحة الأدمن (تقرأ من localStorage) =====
       function renderAdminOrders() {
         if (!adminOrdersBody) return;
 
-        // تحميل الطلبات من localStorage مباشرة للتأكد من التحديث
-        orders = getOrders();
+        // قراءة الطلبات من localStorage مباشرة
+        const currentOrders = getOrders();
 
-        if (orders.length === 0) {
+        if (currentOrders.length === 0) {
           adminOrdersBody.innerHTML =
             `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">لا توجد طلبات حالياً</td></tr>`;
           return;
         }
 
         let html = '';
-        for (const order of orders) {
+        for (const order of currentOrders) {
           const statusClass = order.status === 'pending_payment' ? 'status-pending' :
             order.status === 'payment_confirmed' ? 'status-confirmed' :
             order.status === 'delivered' ? 'status-delivered' : '';
@@ -1559,7 +1565,8 @@
           ordersContainer.innerHTML = `<div class="order-empty">سجل الدخول لعرض طلباتك</div>`;
           return;
         }
-        const userOrders = orders.filter(o => o.userName === currentUser.username);
+        const currentOrders = getOrders();
+        const userOrders = currentOrders.filter(o => o.userName === currentUser.username);
         if (userOrders.length === 0) {
           ordersContainer.innerHTML = `<div class="order-empty">لا توجد طلبات حالياً</div>`;
           return;
@@ -1944,17 +1951,14 @@
         mainSubmitBtn.addEventListener('click', submitOrder);
 
         refreshAdminBtn.addEventListener('click', function() {
-          orders = getOrders();
-          renderAdminOrders();
+          renderAdminOrders(); // يقرأ من localStorage مباشرة
           renderMyOrders();
           showNotification('تم تحديث الطلبات.');
         });
 
-        // زر حذف جميع الطلبات (للتجربة)
         clearOrdersBtn.addEventListener('click', function() {
           if (confirm('هل أنت متأكد من حذف جميع الطلبات؟')) {
-            orders = [];
-            saveOrders(orders);
+            saveOrders([]);
             renderAdminOrders();
             renderMyOrders();
             showNotification('تم حذف جميع الطلبات.');
@@ -2064,7 +2068,7 @@
 
         console.log('🚀 VOID GAMING loaded successfully.');
         console.log('👤 Current user:', currentUser);
-        console.log('📦 Orders:', orders);
+        console.log('📦 Orders:', getOrders());
       }
 
       if (document.readyState === 'loading') {
