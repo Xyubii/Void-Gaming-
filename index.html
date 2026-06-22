@@ -27,9 +27,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   
-  <!-- ===== كل التنسيقات كما هي (لم تتغير) ===== -->
   <style>
-    /* ===== الثيمات والمتغيرات ===== */
+    /* ===== كل التنسيقات كما هي (لم تتغير) ===== */
     :root {
       --bg-primary: #050505;
       --bg-secondary: #0a0a0f;
@@ -925,6 +924,8 @@
         <div class="admin-actions">
           <span class="admin-badge" id="adminUserBadge">مرحباً، admin</span>
           <button class="admin-refresh-btn" id="refreshAdminBtn"><i class="fas fa-sync-alt"></i> تحديث</button>
+          <!-- زر حذف جميع الطلبات (للاختبار فقط) -->
+          <button class="admin-refresh-btn" id="clearOrdersBtn" style="color:#ff6b6b;"><i class="fas fa-trash"></i> حذف الكل</button>
         </div>
       </div>
       <div class="admin-table-wrap">
@@ -988,7 +989,7 @@
 
   <script>
     // ================================================================
-    //  VOID GAMING - باستخدام IndexedDB لتخزين الصور مع إصلاح حفظ الطلبات
+    //  VOID GAMING - حل مشكلة عدم ظهور الطلبات في لوحة الأدمن
     // ================================================================
 
     (function() {
@@ -1023,6 +1024,7 @@
       const authTabs = document.querySelectorAll('.auth-tab');
       const logoutBtn = document.getElementById('logoutBtn');
       const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+      const clearOrdersBtn = document.getElementById('clearOrdersBtn');
 
       const faqList = document.getElementById('faqList');
       const testimonialGrid = document.getElementById('testimonialGrid');
@@ -1190,9 +1192,7 @@
         localStorage.setItem('void_orders', JSON.stringify(ordersData));
       }
 
-      // دالة إنشاء الطلب الرئيسية – متزامنة مع تخزين الصورة في الخلفية
       function createOrder(data) {
-        // إنشاء الطلب أولاً بدون الصورة (سنضيفها لاحقاً)
         const newOrder = {
           id: 'ord_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
           userName: data.name || 'غير معروف',
@@ -1202,37 +1202,30 @@
           gameId: data.gameId || '',
           server: data.server || '',
           senderPhone: data.senderPhone || '',
-          receiptImageId: null, // سيتم تحديثه بعد حفظ الصورة
+          receiptImageId: null,
           status: 'pending_payment',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
 
-        // حفظ الطلب في localStorage فوراً
         orders.unshift(newOrder);
         saveOrders(orders);
 
-        // معالجة الصورة في الخلفية (غير متزامن)
         if (data.receiptImage) {
           const imageId = 'receipt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
           saveImageToDB(imageId, data.receiptImage)
             .then(() => {
-              // تحديث الطلب بالمرجع الجديد
               const orderToUpdate = orders.find(o => o.id === newOrder.id);
               if (orderToUpdate) {
                 orderToUpdate.receiptImageId = imageId;
                 saveOrders(orders);
-                renderAdminOrders(); // تحديث لوحة الأدمن
-                renderMyOrders(); // تحديث طلبات العميل
+                renderAdminOrders();
+                renderMyOrders();
               }
             })
-            .catch(err => {
-              console.error('فشل حفظ الصورة في IndexedDB:', err);
-              // لا نمنع إكمال العملية، الصورة ستكون مفقودة فقط
-            });
+            .catch(err => console.error('فشل حفظ الصورة:', err));
         }
 
-        // إشعار للأدمن
         addNotification(ADMIN_USERNAME, '📩 طلب جديد من ' + newOrder.userName + ' (لعبة: ' + newOrder.game + ')');
         if (currentUser && currentUser.isAdmin) {
           showNotification('📩 طلب جديد من ' + newOrder.userName);
@@ -1377,7 +1370,7 @@
       }
 
       // =============================================================
-      // 6. دوال العرض
+      // 6. دوال العرض (مع إصلاح لوحة الأدمن)
       // =============================================================
       function updateUI() {
         if (currentUser) {
@@ -1387,7 +1380,7 @@
           if (currentUser.isAdmin) {
             adminPanel.style.display = 'block';
             adminUserBadge.textContent = 'مرحباً، ' + currentUser.username;
-            renderAdminOrders();
+            renderAdminOrders(); // <- عرض الطلبات فوراً
           } else {
             adminPanel.style.display = 'none';
           }
@@ -1476,16 +1469,21 @@
         floatTelegram.href = CONTACTS.telegram;
       }
 
-      async function renderAdminOrders() {
+      // ===== الدالة الرئيسية لعرض الطلبات في لوحة الأدمن (تم إصلاحها) =====
+      function renderAdminOrders() {
         if (!adminOrdersBody) return;
-        const filtered = orders;
-        if (filtered.length === 0) {
+
+        // تحميل الطلبات من localStorage مباشرة للتأكد من التحديث
+        orders = getOrders();
+
+        if (orders.length === 0) {
           adminOrdersBody.innerHTML =
             `<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text-muted);">لا توجد طلبات حالياً</td></tr>`;
           return;
         }
+
         let html = '';
-        for (const order of filtered) {
+        for (const order of orders) {
           const statusClass = order.status === 'pending_payment' ? 'status-pending' :
             order.status === 'payment_confirmed' ? 'status-confirmed' :
             order.status === 'delivered' ? 'status-delivered' : '';
@@ -1515,7 +1513,7 @@
         }
         adminOrdersBody.innerHTML = html;
 
-        // مستمعات أزرار الإجراءات
+        // مستمعات الأزرار
         adminOrdersBody.querySelectorAll('[data-action]').forEach(btn => {
           btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -1668,7 +1666,7 @@
       }
 
       // =============================================================
-      // 8. إرسال الطلب – مع تخزين فوري في localStorage
+      // 8. إرسال الطلب
       // =============================================================
       async function submitOrder() {
         if (!currentUser) {
@@ -1696,7 +1694,6 @@
         const pkgLabel = pkg ? pkg.label + ' — $' + pkg.price.toFixed(2) : 'غير معروف';
 
         try {
-          // ضغط الصورة
           let imageData = null;
           try {
             imageData = await compressImage(file, 600, 600, 0.6);
@@ -1707,7 +1704,6 @@
             return;
           }
 
-          // إنشاء الطلب (يتم حفظه فوراً في localStorage، ثم الصورة في الخلفية)
           createOrder({
             name: name,
             game: gameName,
@@ -1728,9 +1724,7 @@
           orderGame.value = '';
           showNotification('✅ تم إرسال طلبك بنجاح!');
           renderMyOrders();
-          if (currentUser && currentUser.isAdmin) {
-            renderAdminOrders();
-          }
+          renderAdminOrders(); // تحديث فوري للوحة الأدمن
         } catch (err) {
           orderErrorMsg.textContent = 'حدث خطأ أثناء حفظ الطلب: ' + err.message;
           orderErrorMsg.style.display = 'block';
@@ -1739,7 +1733,7 @@
       }
 
       // =============================================================
-      // 9. THREE.JS الخلفية ثلاثية الأبعاد
+      // 9. THREE.JS
       // =============================================================
       function initThree() {
         const scene = new THREE.Scene();
@@ -1924,7 +1918,6 @@
       // 13. التهيئة (INIT)
       // =============================================================
       async function init() {
-        // فتح IndexedDB
         try {
           await openDB();
         } catch (err) {
@@ -1955,6 +1948,17 @@
           renderAdminOrders();
           renderMyOrders();
           showNotification('تم تحديث الطلبات.');
+        });
+
+        // زر حذف جميع الطلبات (للتجربة)
+        clearOrdersBtn.addEventListener('click', function() {
+          if (confirm('هل أنت متأكد من حذف جميع الطلبات؟')) {
+            orders = [];
+            saveOrders(orders);
+            renderAdminOrders();
+            renderMyOrders();
+            showNotification('تم حذف جميع الطلبات.');
+          }
         });
 
         reviewForm.addEventListener('submit', (e) => {
